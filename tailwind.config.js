@@ -13,35 +13,59 @@ export default {
       },
       colors: {
         paper: {
-          50: '#FAF8F5',
-          100: '#F4F0E8',
-          200: '#E8E1D3',
-          300: '#DCD1BD',
-          800: '#1C1A17',
-          900: '#121110',
-          950: '#0B0A09',
+          50: '#FDFBF7',
+          100: '#F6F2EA',
+          200: '#EBE4D5',
+          300: '#DDD1BD',
+          800: '#181715',
+          900: '#11100F',
+          950: '#0A0A09',
         },
         accent: {
-          DEFAULT: '#C59B27', // Antique Gold
-          hover: '#B38B1E',
-          light: '#F8F3E6',
-          dark: '#E2BD56',
+          DEFAULT: '#D4AF37', // Antique Gold
+          hover: '#C29B28',
+          light: '#FFFDF5',
+          dark: '#E5C158',
+          glow: 'rgba(212, 175, 55, 0.25)',
         },
         crimson: {
-          DEFAULT: '#9E2A2B',
-          light: '#FDF2F2',
-          dark: '#7A1C1D',
+          DEFAULT: '#B91C1C',
+          light: '#FEF2F2',
+          dark: '#991B1B',
+          glow: 'rgba(185, 28, 28, 0.2)',
         },
         emeraldCustom: {
-          DEFAULT: '#2D6A4F',
-          light: '#F0F7F4',
-          dark: '#1B4332',
+          DEFAULT: '#047857',
+          light: '#ECFDF5',
+          dark: '#065F46',
+          glow: 'rgba(4, 120, 87, 0.2)',
         }
       },
       boxShadow: {
-        'subtle': '0 2px 10px rgba(0, 0, 0, 0.03)',
-        'editorial': '0 10px 30px -10px rgba(0, 0, 0, 0.08)',
-        'editorial-dark': '0 10px 30px -10px rgba(0, 0, 0, 0.5)',
+        'subtle': '0 4px 20px -2px rgba(0, 0, 0, 0.04)',
+        'elevated': '0 12px 36px -6px rgba(0, 0, 0, 0.08), 0 4px 12px -2px rgba(0, 0, 0, 0.04)',
+        'glow-accent': '0 0 25px -5px rgba(212, 175, 55, 0.4)',
+        'glow-emerald': '0 0 25px -5px rgba(4, 120, 87, 0.4)',
+        'glow-crimson': '0 0 25px -5px rgba(185, 28, 28, 0.4)',
+      },
+      keyframes: {
+        shake: {
+          '0%, 100%': { transform: 'translateX(0)' },
+          '20%, 60%': { transform: 'translateX(-6px)' },
+          '40%, 80%': { transform: 'translateX(6px)' },
+        },
+        float: {
+          '0%, 100%': { transform: 'translateY(0px)' },
+          '50%': { transform: 'translateY(-6px)' },
+        },
+        shimmer: {
+          '100%': { transform: 'translateX(100%)' },
+        }
+      },
+      animation: {
+        shake: 'shake 0.4s cubic-bezier(.36,.07,.19,.97) both',
+        float: 'float 4s ease-in-out infinite',
+        shimmer: 'shimmer 2s infinite',
       }
     },
   },
