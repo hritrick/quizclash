@@ -1,0 +1,24 @@
+name: Deploy Backend to Render
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'server/**'
+      - '.github/workflows/deploy-server.yml'
+
+jobs:
+  deploy-render:
+    name: Trigger Render Webhook Deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Deploy Webhook
+        env:
+          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
+        run: |
+          if [ -n "$RENDER_DEPLOY_HOOK" ]; then
+            curl -X POST "$RENDER_DEPLOY_HOOK"
+            echo "✅ Render deployment hook triggered successfully."
+          else
+            echo "⚠️ RENDER_DEPLOY_HOOK secret is not configured. Skipping webhook trigger."
+          fi
