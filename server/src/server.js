@@ -29,8 +29,8 @@ const startServer = async () => {
 
     const { gameEngine } = initSocketServer(io);
 
-    const PORT = env.PORT || 5000;
-    server.listen(PORT, () => {
+    const PORT = parseInt(env.PORT, 10) || 5000;
+    server.listen(PORT, '0.0.0.0', () => {
       logger.info(`🚀 QuizClash Server running in ${env.NODE_ENV} mode on port ${PORT}`);
     });
 
