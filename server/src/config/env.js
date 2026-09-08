@@ -11,7 +11,7 @@ const envSchema = z.object({
   JWT_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_SECRET: z.string().min(10, 'JWT_REFRESH_SECRET must be at least 10 chars').default('super_quizclash_refresh_secret_key_67890_!@#$%^'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
-  CLIENT_URL: z.string().default('http://localhost:5173'),
+  CLIENT_URL: z.string().default('https://quizclash-eta.vercel.app'),
   COOKIE_SECRET: z.string().default('quizclash_secure_cookie_secret_999'),
 });
 
