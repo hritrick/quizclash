@@ -115,37 +115,37 @@ export const HostQuizBuilderPage = () => {
   };
 
   return (
-    <div className="flex-1 max-w-4xl mx-auto w-full px-4 lg:px-8 py-8">
+    <div className="flex-1 max-w-4xl mx-auto w-full px-3 xs:px-4 lg:px-8 py-4 sm:py-8">
       <button
         onClick={() => navigate('/dashboard')}
-        className="inline-flex items-center gap-1.5 text-xs font-display font-bold text-ink-700 hover:text-ink-950 mb-6 bg-cream-100 px-3 py-1.5 rounded-xl border border-ink-900 shadow-[2px_2px_0px_0px_#14110F]"
+        className="inline-flex items-center gap-1.5 text-xs font-display font-bold text-ink-700 hover:text-ink-950 mb-4 sm:mb-6 bg-cream-100 px-3 py-1.5 rounded-xl border border-ink-900 shadow-[2px_2px_0px_0px_#14110F]"
       >
         <ArrowLeft className="w-4 h-4" />
         Back to Arena
       </button>
 
-      <div className="text-center mb-8">
+      <div className="text-center mb-6 sm:mb-8">
         <Badge variant="amber" size="sm" className="mb-2">
           Quiz Master Studio
         </Badge>
-        <h1 className="text-3xl sm:text-4xl font-display font-black text-ink-950">
+        <h1 className="text-2xl xs:text-3xl sm:text-4xl font-display font-black text-ink-950">
           Create a New Pub Quiz
         </h1>
-        <p className="text-sm text-ink-700 mt-1">
+        <p className="text-xs xs:text-sm text-ink-700 mt-1">
           Compose high-intensity trivia rounds, customize time limits, and set buzzer points.
         </p>
       </div>
 
       {error && (
-        <div className="mb-6 p-4 bg-rose-100 border-2 border-rose-900/40 rounded-2xl text-rose-900 text-sm font-bold shadow-[3px_3px_0px_0px_#14110F]">
+        <div className="mb-6 p-3 xs:p-4 bg-rose-100 border-2 border-rose-900/40 rounded-2xl text-rose-900 text-xs xs:text-sm font-bold shadow-[3px_3px_0px_0px_#14110F]">
           ⚠️ {error}
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-6 sm:space-y-8">
         {/* Quiz Meta Card */}
-        <Card className="shadow-[5px_5px_0px_0px_#14110F]">
-          <h3 className="font-display font-bold text-lg text-ink-950 mb-4 pb-2 border-b-2 border-ink-900">
+        <Card className="shadow-[4px_4px_0px_0px_#14110F] xs:shadow-[5px_5px_0px_0px_#14110F] p-4 xs:p-5 sm:p-6">
+          <h3 className="font-display font-bold text-base xs:text-lg text-ink-950 mb-3 xs:mb-4 pb-2 border-b-2 border-ink-900">
             1. Quiz Details
           </h3>
 
@@ -160,11 +160,11 @@ export const HostQuizBuilderPage = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. World Cinema & Iconic Soundtracks"
-                className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl px-4 py-2.5 font-bold text-ink-950 focus:outline-none focus:ring-2 focus:ring-accent-amber"
+                className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl px-3.5 xs:px-4 py-2 xs:py-2.5 text-sm xs:text-base font-bold text-ink-950 focus:outline-none focus:ring-2 focus:ring-accent-amber"
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-xs font-display font-bold uppercase text-ink-800 mb-1">
                   Category
@@ -172,7 +172,7 @@ export const HostQuizBuilderPage = () => {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl px-3 py-2.5 font-bold text-ink-950 focus:outline-none"
+                  className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl px-3 py-2.5 text-sm font-bold text-ink-950 focus:outline-none"
                 >
                   {CATEGORIES.map((c) => (
                     <option key={c} value={c}>
@@ -189,7 +189,7 @@ export const HostQuizBuilderPage = () => {
                 <select
                   value={difficulty}
                   onChange={(e) => setDifficulty(e.target.value)}
-                  className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl px-3 py-2.5 font-bold text-ink-950 focus:outline-none"
+                  className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl px-3 py-2.5 text-sm font-bold text-ink-950 focus:outline-none"
                 >
                   <option value="easy">Easy (Casual)</option>
                   <option value="medium">Medium (Competitive)</option>
@@ -207,16 +207,16 @@ export const HostQuizBuilderPage = () => {
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Brief intro or rules for your players..."
-                className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl px-4 py-2 text-sm font-medium text-ink-950 focus:outline-none"
+                className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl px-3.5 xs:px-4 py-2 text-sm font-medium text-ink-950 focus:outline-none"
               />
             </div>
           </div>
         </Card>
 
         {/* Questions Section */}
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="font-display font-black text-2xl text-ink-950">
+        <div className="space-y-4 sm:space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h3 className="font-display font-black text-xl xs:text-2xl text-ink-950">
               2. Questions ({questions.length})
             </h3>
             <Button variant="secondary" size="sm" onClick={handleAddQuestion}>
@@ -226,13 +226,13 @@ export const HostQuizBuilderPage = () => {
           </div>
 
           {questions.map((q, qIndex) => (
-            <Card key={qIndex} className="shadow-[5px_5px_0px_0px_#14110F]">
-              <div className="flex items-center justify-between mb-4 pb-2 border-b-2 border-ink-900">
-                <span className="font-display font-black text-base text-ink-950">
+            <Card key={qIndex} className="shadow-[4px_4px_0px_0px_#14110F] xs:shadow-[5px_5px_0px_0px_#14110F] p-4 xs:p-5 sm:p-6">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-3 xs:mb-4 pb-2 border-b-2 border-ink-900">
+                <span className="font-display font-black text-sm xs:text-base text-ink-950">
                   Question #{qIndex + 1}
                 </span>
 
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 xs:gap-3">
                   <div className="flex items-center gap-1">
                     <span className="text-xs font-bold text-ink-600">⏱️</span>
                     <select
@@ -273,7 +273,7 @@ export const HostQuizBuilderPage = () => {
                   value={q.text}
                   onChange={(e) => handleQuestionChange(qIndex, 'text', e.target.value)}
                   placeholder="e.g. Which chemical element has the symbol 'Fe'?"
-                  className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl px-4 py-2.5 font-bold text-ink-950 focus:outline-none"
+                  className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl px-3.5 xs:px-4 py-2 xs:py-2.5 text-sm xs:text-base font-bold text-ink-950 focus:outline-none"
                 />
               </div>
 
@@ -282,7 +282,7 @@ export const HostQuizBuilderPage = () => {
                 <label className="block text-xs font-display font-bold uppercase text-ink-800 mb-2">
                   Answer Options (Select the correct one with the checkmark)
                 </label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 xs:gap-3">
                   {q.options.map((opt, optIndex) => {
                     const isCorrect = q.correctIndex === optIndex;
                     return (
@@ -297,7 +297,7 @@ export const HostQuizBuilderPage = () => {
                         <button
                           type="button"
                           onClick={() => handleQuestionChange(qIndex, 'correctIndex', optIndex)}
-                          className={`w-7 h-7 rounded-lg border flex items-center justify-center font-bold text-xs ${
+                          className={`w-7 h-7 rounded-lg border flex items-center justify-center font-bold text-xs shrink-0 ${
                             isCorrect
                               ? 'bg-emerald-600 border-emerald-800 text-white'
                               : 'bg-cream-200 border-ink-600 text-ink-600 hover:bg-emerald-100'
@@ -312,7 +312,7 @@ export const HostQuizBuilderPage = () => {
                           value={opt}
                           onChange={(e) => handleOptionChange(qIndex, optIndex, e.target.value)}
                           placeholder={`Option ${optIndex + 1}`}
-                          className="flex-1 bg-transparent text-sm font-bold text-ink-950 focus:outline-none"
+                          className="flex-1 min-w-0 bg-transparent text-xs xs:text-sm font-bold text-ink-950 focus:outline-none"
                         />
                       </div>
                     );
@@ -338,8 +338,8 @@ export const HostQuizBuilderPage = () => {
         </div>
 
         {/* Submit Button */}
-        <div className="pt-4 flex justify-end">
-          <Button type="submit" variant="coral" size="lg" isLoading={loading}>
+        <div className="pt-2 sm:pt-4 flex justify-end">
+          <Button type="submit" variant="coral" size="lg" isLoading={loading} className="w-full sm:w-auto">
             <Save className="w-5 h-5 mr-2" />
             Publish Quiz to Arena
           </Button>

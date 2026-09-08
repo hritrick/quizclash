@@ -94,7 +94,7 @@ export const LiveGamePage = () => {
   }
 
   return (
-    <div className="flex-1 max-w-6xl mx-auto w-full px-4 lg:px-8 py-6 flex flex-col justify-between select-none">
+    <div className="flex-1 max-w-6xl mx-auto w-full px-3 xs:px-4 lg:px-8 py-3 xs:py-4 sm:py-6 flex flex-col justify-between select-none">
       {/* Toast Alert for Freeze or Multiplier Notice */}
       {game.freezeNotice && (
         <Toast
@@ -105,11 +105,11 @@ export const LiveGamePage = () => {
       )}
 
       {/* Top Game Bar: Question Index, Timer Bar, Live Score */}
-      <div className="bg-ink-900 border-3 border-ink-950 rounded-2xl p-4 shadow-[4px_4px_0px_0px_#14110F] text-cream-50 mb-6">
-        <div className="flex items-center justify-between gap-4 mb-3">
+      <div className="bg-ink-900 border-2 xs:border-3 border-ink-950 rounded-2xl p-3 xs:p-4 shadow-[3px_3px_0px_0px_#14110F] xs:shadow-[4px_4px_0px_0px_#14110F] text-cream-50 mb-4 sm:mb-6">
+        <div className="flex items-center justify-between gap-2 xs:gap-4 mb-2.5 xs:mb-3 flex-wrap">
           {/* Question Counter */}
-          <div className="flex items-center gap-2">
-            <span className="font-mono text-xs sm:text-sm font-bold bg-ink-800 px-3 py-1 rounded-xl border border-ink-700 text-accent-amber">
+          <div className="flex items-center gap-1.5 xs:gap-2">
+            <span className="font-mono text-xs sm:text-sm font-bold bg-ink-800 px-2 xs:px-3 py-1 rounded-xl border border-ink-700 text-accent-amber whitespace-nowrap">
               Q {game.questionIndex + 1} / {game.totalQuestions}
             </span>
             {isSpectator && (
@@ -127,28 +127,28 @@ export const LiveGamePage = () => {
           {/* Timer Clock */}
           <div className="flex items-center gap-2">
             <div
-              className={`flex items-center gap-1.5 px-3 py-1 rounded-xl border-2 font-mono font-black text-sm sm:text-base ${
+              className={`flex items-center gap-1 xs:gap-1.5 px-2.5 xs:px-3 py-1 rounded-xl border-2 font-mono font-black text-xs xs:text-sm sm:text-base ${
                 secondsLeft <= 5
                   ? 'bg-rose-600 border-rose-400 text-white animate-pulse'
                   : 'bg-ink-950 border-ink-700 text-accent-amber'
               }`}
             >
-              <Clock className="w-4 h-4" />
+              <Clock className="w-3.5 h-3.5 xs:w-4 xs:h-4" />
               {secondsLeft}s
             </div>
           </div>
 
           {/* Current Player Rank & Score */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 xs:gap-2">
             <span className="text-xs font-bold text-cream-300 hidden sm:inline">Score:</span>
-            <span className="font-mono font-black text-lg sm:text-xl text-accent-amber">
+            <span className="font-mono font-black text-sm xs:text-base sm:text-xl text-accent-amber whitespace-nowrap">
               {myPlayerInScoreboard ? myPlayerInScoreboard.score : 0} pts
             </span>
           </div>
         </div>
 
         {/* Smooth Countdown Progress Bar */}
-        <div className="w-full bg-ink-950 h-3 rounded-full overflow-hidden border border-ink-700">
+        <div className="w-full bg-ink-950 h-2.5 xs:h-3 rounded-full overflow-hidden border border-ink-700">
           <div
             className={`h-full transition-all duration-75 ${
               progressPercent > 50
@@ -163,21 +163,21 @@ export const LiveGamePage = () => {
       </div>
 
       {/* Main Question Board */}
-      <div className="relative mb-6">
-        <div className="bg-cream-50 border-3 border-ink-900 rounded-3xl p-6 sm:p-10 shadow-[6px_6px_0px_0px_#14110F] text-center min-h-[160px] flex items-center justify-center">
-          <h2 className="text-xl sm:text-3xl font-display font-extrabold text-ink-950 leading-tight">
+      <div className="relative mb-4 sm:mb-6">
+        <div className="bg-cream-50 border-2 xs:border-3 border-ink-900 rounded-2xl xs:rounded-3xl p-4 xs:p-6 sm:p-10 shadow-[4px_4px_0px_0px_#14110F] xs:shadow-[6px_6px_0px_0px_#14110F] text-center min-h-[110px] xs:min-h-[140px] sm:min-h-[160px] flex items-center justify-center">
+          <h2 className="text-base xs:text-xl sm:text-2xl md:text-3xl font-display font-extrabold text-ink-950 leading-tight">
             {currentQ.text}
           </h2>
         </div>
 
         {/* Frozen Lock Overlay if Enemy Player Froze Us */}
         {isFrozen && (
-          <div className="absolute inset-0 bg-cyan-900/80 backdrop-blur-sm rounded-3xl border-4 border-cyan-400 flex flex-col items-center justify-center text-white z-20 animate-pop-in">
-            <Snowflake className="w-16 h-16 text-cyan-300 animate-spin mb-2" />
-            <h3 className="text-2xl font-display font-black text-cyan-100 uppercase tracking-widest">
+          <div className="absolute inset-0 bg-cyan-900/85 backdrop-blur-sm rounded-2xl xs:rounded-3xl border-3 xs:border-4 border-cyan-400 flex flex-col items-center justify-center text-white z-20 animate-pop-in p-4 text-center">
+            <Snowflake className="w-10 h-10 xs:w-16 xs:h-16 text-cyan-300 animate-spin mb-1 xs:mb-2" />
+            <h3 className="text-lg xs:text-2xl font-display font-black text-cyan-100 uppercase tracking-widest">
               YOU ARE FROZEN!
             </h3>
-            <p className="font-mono text-sm text-cyan-200 mt-1">
+            <p className="font-mono text-xs xs:text-sm text-cyan-200 mt-1">
               Buzzers unlocking in {freezeRemaining}s...
             </p>
           </div>
@@ -185,7 +185,7 @@ export const LiveGamePage = () => {
       </div>
 
       {/* 2x2 Game Show Buzzer Answer Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 xs:grid-cols-2 gap-2.5 xs:gap-3 sm:gap-4 mb-4 sm:mb-6">
         {currentQ.options.map((option, idx) => {
           const isSelected = game.selectedOptionIndex === idx;
           const isRemovedBy5050 = game.removedOptionIndices.includes(idx);
@@ -225,20 +225,20 @@ export const LiveGamePage = () => {
                 !!reveal
               }
               onClick={() => handleTileClick(idx)}
-              className={`btn-buzzer relative p-5 sm:p-7 rounded-2xl border-3 border-ink-950 font-display font-bold text-base sm:text-xl text-left flex items-center gap-4 transition-all duration-75 shadow-[4px_4px_0px_0px_#14110F] ${tileStateClasses}`}
+              className={`btn-buzzer relative p-3.5 xs:p-4 sm:p-6 md:p-7 rounded-xl xs:rounded-2xl border-2 xs:border-3 border-ink-950 font-display font-bold text-sm xs:text-base sm:text-xl text-left flex items-center gap-2.5 xs:gap-3 sm:gap-4 transition-all duration-75 shadow-[3px_3px_0px_0px_#14110F] xs:shadow-[4px_4px_0px_0px_#14110F] min-h-[58px] xs:min-h-[68px] sm:min-h-[80px] ${tileStateClasses}`}
             >
               {/* Shape Badge */}
-              <span className="w-10 h-10 rounded-xl bg-black/25 flex items-center justify-center font-mono font-black text-lg shrink-0 border border-white/20">
+              <span className="w-8 h-8 xs:w-9 xs:h-9 sm:w-10 sm:h-10 rounded-lg xs:rounded-xl bg-black/25 flex items-center justify-center font-mono font-black text-sm xs:text-base sm:text-lg shrink-0 border border-white/20">
                 {tileConfig.shape}
               </span>
 
-              <span className="flex-1 leading-snug">{isRemovedBy5050 ? '—' : option}</span>
+              <span className="flex-1 leading-snug break-words">{isRemovedBy5050 ? '—' : option}</span>
 
               {/* Status Icons during Reveal */}
               {reveal && isCorrectAnswer && (
-                <CheckCircle2 className="w-7 h-7 text-emerald-300 shrink-0" />
+                <CheckCircle2 className="w-5 h-5 xs:w-6 xs:h-6 sm:w-7 sm:h-7 text-emerald-300 shrink-0" />
               )}
-              {reveal && isWrongSelected && <XCircle className="w-7 h-7 text-rose-300 shrink-0" />}
+              {reveal && isWrongSelected && <XCircle className="w-5 h-5 xs:w-6 xs:h-6 sm:w-7 sm:h-7 text-rose-300 shrink-0" />}
             </button>
           );
         })}
@@ -246,9 +246,9 @@ export const LiveGamePage = () => {
 
       {/* Explanation Banner during Reveal Phase */}
       {reveal && reveal.explanation && (
-        <div className="bg-amber-50 border-2 border-amber-600 rounded-2xl p-4 mb-6 shadow-[3px_3px_0px_0px_#B27B22] animate-slide-up text-left">
-          <div className="flex items-center gap-2 font-display font-bold text-amber-900 text-sm mb-1">
-            <HelpCircle className="w-4 h-4 text-amber-700" />
+        <div className="bg-amber-50 border-2 border-amber-600 rounded-xl xs:rounded-2xl p-3 xs:p-4 mb-4 sm:mb-6 shadow-[3px_3px_0px_0px_#B27B22] animate-slide-up text-left">
+          <div className="flex items-center gap-2 font-display font-bold text-amber-900 text-xs xs:text-sm mb-1">
+            <HelpCircle className="w-4 h-4 text-amber-700 shrink-0" />
             Trivia Fact & Explanation:
           </div>
           <p className="text-xs sm:text-sm text-amber-950 font-medium">{reveal.explanation}</p>
@@ -257,13 +257,13 @@ export const LiveGamePage = () => {
 
       {/* Tactical Power-Up Bar (Disabled for Spectators or when already chosen) */}
       {!isSpectator && (
-        <div className="bg-cream-100 border-2 border-ink-900 rounded-2xl p-3 shadow-[3px_3px_0px_0px_#14110F] flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-1.5 text-xs font-display font-bold text-ink-800">
+        <div className="bg-cream-100 border-2 border-ink-900 rounded-xl xs:rounded-2xl p-2.5 xs:p-3 shadow-[3px_3px_0px_0px_#14110F] flex flex-col xs:flex-row items-center justify-between gap-2 xs:gap-3">
+          <div className="flex items-center gap-1.5 text-xs font-display font-bold text-ink-800 self-start xs:self-auto">
             <Zap className="w-4 h-4 text-accent-amber" />
             Tactical Arsenal:
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="grid grid-cols-3 xs:flex items-center gap-1.5 xs:gap-2 w-full xs:w-auto">
             {/* 50:50 */}
             <button
               disabled={
@@ -273,7 +273,7 @@ export const LiveGamePage = () => {
                 isFrozen
               }
               onClick={() => handlePowerup('fiftyFifty')}
-              className={`px-3 py-1.5 rounded-xl border-2 font-display font-bold text-xs flex items-center gap-1.5 transition-all ${
+              className={`w-full xs:w-auto justify-center px-2 xs:px-3 py-1.5 rounded-lg xs:rounded-xl border-2 font-display font-bold text-[11px] xs:text-xs flex items-center gap-1 xs:gap-1.5 transition-all ${
                 game.powerupsUsed.fiftyFifty
                   ? 'bg-cream-300 border-ink-400 text-ink-400 line-through cursor-not-allowed'
                   : 'bg-accent-amber text-ink-950 border-ink-900 shadow-[2px_2px_0px_0px_#14110F] hover:bg-amber-400 active:translate-x-[1px] active:translate-y-[1px]'
@@ -291,14 +291,14 @@ export const LiveGamePage = () => {
                 isFrozen
               }
               onClick={() => handlePowerup('doublePoints')}
-              className={`px-3 py-1.5 rounded-xl border-2 font-display font-bold text-xs flex items-center gap-1.5 transition-all ${
+              className={`w-full xs:w-auto justify-center px-2 xs:px-3 py-1.5 rounded-lg xs:rounded-xl border-2 font-display font-bold text-[11px] xs:text-xs flex items-center gap-1 xs:gap-1.5 transition-all ${
                 game.powerupsUsed.doublePoints
                   ? 'bg-cream-300 border-ink-400 text-ink-400 line-through cursor-not-allowed'
                   : 'bg-accent-coral text-white border-ink-900 shadow-[2px_2px_0px_0px_#14110F] hover:bg-rose-500 active:translate-x-[1px] active:translate-y-[1px]'
               }`}
             >
-              <Flame className="w-3.5 h-3.5" />
-              2x Score
+              <Flame className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">2x Score</span>
             </button>
 
             {/* Freeze Rival */}
@@ -310,14 +310,14 @@ export const LiveGamePage = () => {
                 isFrozen
               }
               onClick={() => handlePowerup('freeze')}
-              className={`px-3 py-1.5 rounded-xl border-2 font-display font-bold text-xs flex items-center gap-1.5 transition-all ${
+              className={`w-full xs:w-auto justify-center px-2 xs:px-3 py-1.5 rounded-lg xs:rounded-xl border-2 font-display font-bold text-[11px] xs:text-xs flex items-center gap-1 xs:gap-1.5 transition-all ${
                 game.powerupsUsed.freeze
                   ? 'bg-cream-300 border-ink-400 text-ink-400 line-through cursor-not-allowed'
                   : 'bg-cyan-600 text-white border-ink-900 shadow-[2px_2px_0px_0px_#14110F] hover:bg-cyan-500 active:translate-x-[1px] active:translate-y-[1px]'
               }`}
             >
-              <Snowflake className="w-3.5 h-3.5" />
-              Freeze Rival
+              <Snowflake className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">Freeze</span>
             </button>
           </div>
         </div>

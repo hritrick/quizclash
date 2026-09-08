@@ -44,27 +44,27 @@ export const LeaderboardPage = () => {
   }, [user]);
 
   return (
-    <div className="flex-1 max-w-6xl mx-auto w-full px-4 lg:px-8 py-8">
+    <div className="flex-1 max-w-6xl mx-auto w-full px-3 xs:px-4 lg:px-8 py-4 sm:py-8">
       {/* Header */}
-      <div className="text-center mb-8">
+      <div className="text-center mb-6 sm:mb-8">
         <Badge variant="amber" size="sm" className="mb-2">
           <Trophy className="w-3.5 h-3.5" />
           Hall of Champions
         </Badge>
-        <h1 className="text-4xl font-display font-black text-ink-950">
+        <h1 className="text-2xl xs:text-3xl sm:text-4xl font-display font-black text-ink-950">
           Global Trivia Leaderboard
         </h1>
-        <p className="text-sm text-ink-700 mt-1">
+        <p className="text-xs xs:text-sm text-ink-700 mt-1">
           Top scoring competitors ranked by arena match performance and win rate.
         </p>
       </div>
 
       {/* Switcher Tab */}
-      <div className="flex justify-center mb-8">
-        <div className="bg-cream-300 p-1 rounded-xl border-2 border-ink-900 shadow-[3px_3px_0px_0px_#14110F] inline-flex">
+      <div className="flex justify-center mb-6 sm:mb-8">
+        <div className="bg-cream-300 p-1 rounded-xl border-2 border-ink-900 shadow-[3px_3px_0px_0px_#14110F] flex flex-col xs:flex-row w-full xs:w-auto max-w-md gap-1">
           <button
             onClick={() => setActiveTab('global')}
-            className={`px-5 py-2 rounded-lg font-display font-bold text-sm transition-all ${
+            className={`px-3 xs:px-5 py-2 rounded-lg font-display font-bold text-xs xs:text-sm transition-all text-center ${
               activeTab === 'global'
                 ? 'bg-ink-900 text-cream-50 shadow-sm'
                 : 'text-ink-800 hover:text-ink-950'
@@ -75,7 +75,7 @@ export const LeaderboardPage = () => {
           {user && (
             <button
               onClick={() => setActiveTab('history')}
-              className={`px-5 py-2 rounded-lg font-display font-bold text-sm transition-all ${
+              className={`px-3 xs:px-5 py-2 rounded-lg font-display font-bold text-xs xs:text-sm transition-all text-center ${
                 activeTab === 'history'
                   ? 'bg-ink-900 text-cream-50 shadow-sm'
                   : 'text-ink-800 hover:text-ink-950'
@@ -98,72 +98,76 @@ export const LeaderboardPage = () => {
             description="Be the first player to complete a match and claim rank #1 on the leaderboard!"
           />
         ) : (
-          <Card className="shadow-[6px_6px_0px_0px_#14110F] overflow-x-auto p-0">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-cream-200 border-b-2 border-ink-900 text-xs font-display font-black uppercase text-ink-700 tracking-wider">
-                  <th className="py-3.5 px-4 text-center">Rank</th>
-                  <th className="py-3.5 px-4">Player</th>
-                  <th className="py-3.5 px-4 text-center">Matches</th>
-                  <th className="py-3.5 px-4 text-center">Wins</th>
-                  <th className="py-3.5 px-4 text-center">Accuracy</th>
-                  <th className="py-3.5 px-4 text-right">Total Score</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y-2 divide-ink-900/10">
-                {globalLeaderboard.map((player) => {
-                  const isMe = user && (user.id === player.userId || user._id === player.userId);
+          <Card className="shadow-[5px_5px_0px_0px_#14110F] p-0 overflow-hidden">
+            <div className="overflow-x-auto w-full">
+              <table className="w-full min-w-[580px] text-left border-collapse">
+                <thead>
+                  <tr className="bg-cream-200 border-b-2 border-ink-900 text-xs font-display font-black uppercase text-ink-700 tracking-wider">
+                    <th className="py-3 px-3 xs:px-4 text-center">Rank</th>
+                    <th className="py-3 px-3 xs:px-4">Player</th>
+                    <th className="py-3 px-3 xs:px-4 text-center">Matches</th>
+                    <th className="py-3 px-3 xs:px-4 text-center">Wins</th>
+                    <th className="py-3 px-3 xs:px-4 text-center">Accuracy</th>
+                    <th className="py-3 px-3 xs:px-4 text-right">Total Score</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y-2 divide-ink-900/10">
+                  {globalLeaderboard.map((player) => {
+                    const isMe = user && (user.id === player.userId || user._id === player.userId);
 
-                  let rankIcon = `#${player.rank}`;
-                  if (player.rank === 1) rankIcon = '🥇 1st';
-                  if (player.rank === 2) rankIcon = '🥈 2nd';
-                  if (player.rank === 3) rankIcon = '🥉 3rd';
+                    let rankIcon = `#${player.rank}`;
+                    if (player.rank === 1) rankIcon = '🥇 1st';
+                    if (player.rank === 2) rankIcon = '🥈 2nd';
+                    if (player.rank === 3) rankIcon = '🥉 3rd';
 
-                  return (
-                    <tr
-                      key={player.userId}
-                      className={`transition-colors ${
-                        isMe ? 'bg-amber-50/80 font-bold' : 'hover:bg-cream-100'
-                      }`}
-                    >
-                      <td className="py-3.5 px-4 text-center font-display font-black text-sm">
-                        {rankIcon}
-                      </td>
-                      <td className="py-3.5 px-4">
-                        <div className="flex items-center gap-3">
-                          <Avatar seed={player.avatarSeed || player.username} size="sm" />
-                          <div className="flex flex-col">
-                            <span className="font-display font-bold text-sm text-ink-950 flex items-center gap-1.5">
-                              {player.username}
-                              {isMe && (
-                                <span className="text-[9px] bg-ink-900 text-cream-50 px-1 py-0.2 rounded font-mono">
-                                  YOU
+                    return (
+                      <tr
+                        key={player.userId}
+                        className={`transition-colors ${
+                          isMe ? 'bg-amber-50/80 font-bold' : 'hover:bg-cream-100'
+                        }`}
+                      >
+                        <td className="py-3 px-3 xs:px-4 text-center font-display font-black text-xs xs:text-sm whitespace-nowrap">
+                          {rankIcon}
+                        </td>
+                        <td className="py-3 px-3 xs:px-4">
+                          <div className="flex items-center gap-2.5 xs:gap-3 min-w-0">
+                            <Avatar seed={player.avatarSeed || player.username} size="sm" />
+                            <div className="flex flex-col min-w-0">
+                              <span className="font-display font-bold text-xs xs:text-sm text-ink-950 flex items-center gap-1.5">
+                                <span className="truncate max-w-[110px] xs:max-w-[160px] sm:max-w-[220px]">
+                                  {player.username}
                                 </span>
-                              )}
-                            </span>
-                            <span className="text-[10px] text-ink-600 uppercase font-mono">
-                              {player.role}
-                            </span>
+                                {isMe && (
+                                  <span className="text-[9px] bg-ink-900 text-cream-50 px-1 py-0.2 rounded font-mono shrink-0">
+                                    YOU
+                                  </span>
+                                )}
+                              </span>
+                              <span className="text-[10px] text-ink-600 uppercase font-mono">
+                                {player.role}
+                              </span>
+                            </div>
                           </div>
-                        </div>
-                      </td>
-                      <td className="py-3.5 px-4 text-center font-mono font-bold text-sm">
-                        {player.gamesPlayed}
-                      </td>
-                      <td className="py-3.5 px-4 text-center font-mono font-bold text-sm text-accent-teal">
-                        {player.wins}
-                      </td>
-                      <td className="py-3.5 px-4 text-center font-mono font-bold text-sm text-ink-700">
-                        {player.accuracy}%
-                      </td>
-                      <td className="py-3.5 px-4 text-right font-mono font-black text-base text-accent-coral">
-                        {player.totalScore.toLocaleString()} pts
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        </td>
+                        <td className="py-3 px-3 xs:px-4 text-center font-mono font-bold text-xs xs:text-sm">
+                          {player.gamesPlayed}
+                        </td>
+                        <td className="py-3 px-3 xs:px-4 text-center font-mono font-bold text-xs xs:text-sm text-accent-teal">
+                          {player.wins}
+                        </td>
+                        <td className="py-3 px-3 xs:px-4 text-center font-mono font-bold text-xs xs:text-sm text-ink-700">
+                          {player.accuracy}%
+                        </td>
+                        <td className="py-3 px-3 xs:px-4 text-right font-mono font-black text-sm xs:text-base text-accent-coral whitespace-nowrap">
+                          {player.totalScore.toLocaleString()} pts
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           </Card>
         )
       ) : myHistory.length === 0 ? (
@@ -176,32 +180,32 @@ export const LeaderboardPage = () => {
           {myHistory.map((m) => (
             <Card
               key={m.id}
-              className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 shadow-[4px_4px_0px_0px_#14110F]"
+              className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 p-3.5 xs:p-4 shadow-[3px_3px_0px_0px_#14110F] xs:shadow-[4px_4px_0px_0px_#14110F]"
             >
-              <div>
-                <div className="flex items-center gap-2 mb-1">
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 mb-1 flex-wrap">
                   <Badge variant={m.rank === 1 ? 'amber' : 'neutral'} size="xs">
                     Rank #{m.rank} of {m.totalPlayers}
                   </Badge>
-                  <span className="text-xs font-mono font-bold text-ink-600">{m.category}</span>
+                  <span className="text-xs font-mono font-bold text-ink-600 truncate">{m.category}</span>
                 </div>
-                <h4 className="font-display font-bold text-base text-ink-950">{m.quizTitle}</h4>
-                <span className="text-[11px] text-ink-600">
+                <h4 className="font-display font-bold text-sm xs:text-base text-ink-950 truncate">{m.quizTitle}</h4>
+                <span className="text-[10px] xs:text-[11px] text-ink-600">
                   Played: {new Date(m.playedAt).toLocaleDateString()} at{' '}
                   {new Date(m.playedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
 
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 xs:gap-4 self-end sm:self-auto shrink-0">
                 <div className="text-right">
-                  <span className="block text-[11px] font-bold text-ink-600 uppercase">Score</span>
-                  <span className="font-mono font-black text-lg text-accent-coral">
+                  <span className="block text-[10px] xs:text-[11px] font-bold text-ink-600 uppercase">Score</span>
+                  <span className="font-mono font-black text-base xs:text-lg text-accent-coral whitespace-nowrap">
                     {m.score.toLocaleString()} pts
                   </span>
                 </div>
                 <div className="text-right pl-3 border-l border-ink-300">
-                  <span className="block text-[11px] font-bold text-ink-600 uppercase">Correct</span>
-                  <span className="font-mono font-bold text-sm text-accent-teal">
+                  <span className="block text-[10px] xs:text-[11px] font-bold text-ink-600 uppercase">Correct</span>
+                  <span className="font-mono font-bold text-xs xs:text-sm text-accent-teal whitespace-nowrap">
                     {m.correctCount} / {m.totalQuestions}
                   </span>
                 </div>

@@ -49,27 +49,32 @@ export const ProfilePage = () => {
     stats.totalAnswers > 0 ? Math.round((stats.correctAnswers / stats.totalAnswers) * 100) : 0;
 
   return (
-    <div className="flex-1 max-w-4xl mx-auto w-full px-4 lg:px-8 py-8">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl sm:text-4xl font-display font-black text-ink-950">
+    <div className="flex-1 max-w-4xl mx-auto w-full px-3 xs:px-4 lg:px-8 py-4 sm:py-8">
+      <div className="text-center mb-6 sm:mb-8">
+        <h1 className="text-2xl xs:text-3xl sm:text-4xl font-display font-black text-ink-950">
           Player Profile & Stats
         </h1>
-        <p className="text-sm text-ink-700 mt-1">Manage your identity and review battle performance.</p>
+        <p className="text-xs xs:text-sm text-ink-700 mt-1">Manage your identity and review battle performance.</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6">
         {/* Left Column: Identity & Avatar customizer */}
-        <Card className="md:col-span-5 flex flex-col items-center text-center p-6 shadow-[5px_5px_0px_0px_#14110F]">
-          <Avatar seed={avatarSeed} size="2xl" className="mb-4" />
+        <Card className="md:col-span-5 flex flex-col items-center text-center p-4 xs:p-6 shadow-[4px_4px_0px_0px_#14110F] xs:shadow-[5px_5px_0px_0px_#14110F]">
+          <Avatar seed={avatarSeed} size="xl" className="mb-3 sm:mb-4 xs:hidden" />
+          <Avatar seed={avatarSeed} size="2xl" className="mb-3 sm:mb-4 hidden xs:inline-flex" />
 
-          <h2 className="font-display font-black text-2xl text-ink-950 mb-1">{user?.username}</h2>
-          <span className="text-xs text-ink-600 font-mono mb-3">{user?.email}</span>
+          <h2 className="font-display font-black text-xl xs:text-2xl text-ink-950 mb-1 truncate max-w-full px-2">
+            {user?.username}
+          </h2>
+          <span className="text-xs text-ink-600 font-mono mb-3 truncate max-w-full px-2">
+            {user?.email}
+          </span>
 
-          <Badge variant={user?.role === 'admin' ? 'coral' : user?.role === 'host' ? 'amber' : 'teal'} size="sm" className="mb-6">
+          <Badge variant={user?.role === 'admin' ? 'coral' : user?.role === 'host' ? 'amber' : 'teal'} size="sm" className="mb-4 sm:mb-6">
             Role: {user?.role}
           </Badge>
 
-          <div className="w-full pt-4 border-t-2 border-ink-900 flex flex-col gap-2">
+          <div className="w-full pt-3 xs:pt-4 border-t-2 border-ink-900 flex flex-col gap-2">
             <Button variant="secondary" size="sm" onClick={handleReroll} className="w-full">
               <Dice5 className="w-4 h-4 mr-1.5" />
               Reroll Avatar
@@ -99,45 +104,45 @@ export const ProfilePage = () => {
 
         {/* Right Column: Battle Statistics Matrix */}
         <div className="md:col-span-7 flex flex-col gap-4">
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="p-4 shadow-[4px_4px_0px_0px_#14110F]">
-              <div className="flex items-center gap-2 text-xs font-display font-bold text-ink-700 uppercase mb-1">
-                <Trophy className="w-4 h-4 text-accent-amber" />
-                Matches Won
+          <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
+            <Card className="p-3.5 xs:p-4 shadow-[3px_3px_0px_0px_#14110F] xs:shadow-[4px_4px_0px_0px_#14110F]">
+              <div className="flex items-center gap-1.5 xs:gap-2 text-xs font-display font-bold text-ink-700 uppercase mb-1">
+                <Trophy className="w-4 h-4 text-accent-amber shrink-0" />
+                <span>Matches Won</span>
               </div>
-              <span className="font-mono font-black text-3xl text-ink-950">{stats.wins}</span>
-              <span className="block text-[11px] text-ink-600 mt-1">out of {stats.gamesPlayed} played</span>
+              <span className="font-mono font-black text-2xl xs:text-3xl text-ink-950">{stats.wins}</span>
+              <span className="block text-[10px] xs:text-[11px] text-ink-600 mt-1">out of {stats.gamesPlayed} played</span>
             </Card>
 
-            <Card className="p-4 shadow-[4px_4px_0px_0px_#14110F]">
-              <div className="flex items-center gap-2 text-xs font-display font-bold text-ink-700 uppercase mb-1">
-                <Flame className="w-4 h-4 text-accent-coral" />
-                Win Rate
+            <Card className="p-3.5 xs:p-4 shadow-[3px_3px_0px_0px_#14110F] xs:shadow-[4px_4px_0px_0px_#14110F]">
+              <div className="flex items-center gap-1.5 xs:gap-2 text-xs font-display font-bold text-ink-700 uppercase mb-1">
+                <Flame className="w-4 h-4 text-accent-coral shrink-0" />
+                <span>Win Rate</span>
               </div>
-              <span className="font-mono font-black text-3xl text-accent-coral">{winRate}%</span>
-              <span className="block text-[11px] text-ink-600 mt-1">Victories percentage</span>
+              <span className="font-mono font-black text-2xl xs:text-3xl text-accent-coral">{winRate}%</span>
+              <span className="block text-[10px] xs:text-[11px] text-ink-600 mt-1">Victories percentage</span>
             </Card>
 
-            <Card className="p-4 shadow-[4px_4px_0px_0px_#14110F]">
-              <div className="flex items-center gap-2 text-xs font-display font-bold text-ink-700 uppercase mb-1">
-                <Award className="w-4 h-4 text-accent-teal" />
-                Accuracy
+            <Card className="p-3.5 xs:p-4 shadow-[3px_3px_0px_0px_#14110F] xs:shadow-[4px_4px_0px_0px_#14110F]">
+              <div className="flex items-center gap-1.5 xs:gap-2 text-xs font-display font-bold text-ink-700 uppercase mb-1">
+                <Award className="w-4 h-4 text-accent-teal shrink-0" />
+                <span>Accuracy</span>
               </div>
-              <span className="font-mono font-black text-3xl text-accent-teal">{accuracy}%</span>
-              <span className="block text-[11px] text-ink-600 mt-1">
+              <span className="font-mono font-black text-2xl xs:text-3xl text-accent-teal">{accuracy}%</span>
+              <span className="block text-[10px] xs:text-[11px] text-ink-600 mt-1">
                 {stats.correctAnswers} / {stats.totalAnswers} correct
               </span>
             </Card>
 
-            <Card className="p-4 shadow-[4px_4px_0px_0px_#14110F]">
-              <div className="flex items-center gap-2 text-xs font-display font-bold text-ink-700 uppercase mb-1">
-                <User className="w-4 h-4 text-accent-violet" />
-                Lifetime Points
+            <Card className="p-3.5 xs:p-4 shadow-[3px_3px_0px_0px_#14110F] xs:shadow-[4px_4px_0px_0px_#14110F]">
+              <div className="flex items-center gap-1.5 xs:gap-2 text-xs font-display font-bold text-ink-700 uppercase mb-1">
+                <User className="w-4 h-4 text-accent-violet shrink-0" />
+                <span>Lifetime Points</span>
               </div>
-              <span className="font-mono font-black text-3xl text-accent-amber">
+              <span className="font-mono font-black text-2xl xs:text-3xl text-accent-amber">
                 {stats.totalScore.toLocaleString()}
               </span>
-              <span className="block text-[11px] text-ink-600 mt-1">Total score accumulated</span>
+              <span className="block text-[10px] xs:text-[11px] text-ink-600 mt-1">Total score accumulated</span>
             </Card>
           </div>
         </div>

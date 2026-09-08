@@ -130,43 +130,43 @@ export const DashboardPage = () => {
   };
 
   return (
-    <div className="flex-1 max-w-7xl mx-auto w-full px-4 lg:px-8 py-8">
+    <div className="flex-1 max-w-7xl mx-auto w-full px-3 xs:px-4 lg:px-8 py-4 sm:py-8">
       {/* Top Banner with Asymmetric Dual Action Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 mb-10">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 mb-6 sm:mb-10">
         {/* Left: Direct Room Code Join */}
-        <div className="lg:col-span-5 bg-cream-50 border-2 border-ink-900 rounded-3xl p-6 shadow-[5px_5px_0px_0px_#14110F] flex flex-col justify-between">
+        <div className="lg:col-span-5 bg-cream-50 border-2 border-ink-900 rounded-2xl xs:rounded-3xl p-4 xs:p-6 shadow-[4px_4px_0px_0px_#14110F] xs:shadow-[5px_5px_0px_0px_#14110F] flex flex-col justify-between">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Badge variant="coral">Live Lobby</Badge>
               <span className="text-xs font-bold text-ink-600">Got an invite?</span>
             </div>
-            <h2 className="text-2xl font-display font-extrabold text-ink-950 mb-2">
+            <h2 className="text-xl xs:text-2xl font-display font-extrabold text-ink-950 mb-1.5 xs:mb-2">
               Enter Room Code
             </h2>
-            <p className="text-sm text-ink-700 mb-4">
+            <p className="text-xs xs:text-sm text-ink-700 mb-4">
               Enter the 6-character room code given by your host or friend to join their lobby.
             </p>
           </div>
 
-          <form onSubmit={handleJoinByCode} className="flex gap-2">
+          <form onSubmit={handleJoinByCode} className="flex flex-col xs:flex-row gap-2">
             <input
               type="text"
               maxLength={6}
               value={joinCode}
               onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
               placeholder="e.g. CLASH7"
-              className="flex-1 bg-cream-100 border-2 border-ink-900 rounded-xl px-4 py-2.5 font-mono font-bold text-base text-ink-950 uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-accent-amber"
+              className="flex-1 bg-cream-100 border-2 border-ink-900 rounded-xl px-3.5 xs:px-4 py-2 xs:py-2.5 font-mono font-bold text-sm xs:text-base text-ink-950 uppercase tracking-widest focus:outline-none focus:ring-2 focus:ring-accent-amber"
             />
-            <Button type="submit" variant="coral" size="md" disabled={joinCode.length !== 6}>
+            <Button type="submit" variant="coral" size="md" disabled={joinCode.length !== 6} className="w-full xs:w-auto">
               Join
             </Button>
           </form>
         </div>
 
         {/* Right: Player Welcome and Quick Solo Play CTA */}
-        <div className="lg:col-span-7 bg-ink-900 border-2 border-ink-950 rounded-3xl p-6 shadow-[5px_5px_0px_0px_#F2A93B] text-cream-50 flex flex-col justify-between">
+        <div className="lg:col-span-7 bg-ink-900 border-2 border-ink-950 rounded-2xl xs:rounded-3xl p-4 xs:p-6 shadow-[4px_4px_0px_0px_#F2A93B] xs:shadow-[5px_5px_0px_0px_#F2A93B] text-cream-50 flex flex-col justify-between">
           <div>
-            <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center justify-between mb-2 flex-wrap gap-2">
               <span className="font-mono text-xs font-bold uppercase text-accent-amber tracking-wider">
                 ⚡ QuizClash Arena
               </span>
@@ -174,30 +174,30 @@ export const DashboardPage = () => {
                 {quizzes.length} Quizzes Available
               </span>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-display font-black text-cream-100 mb-2">
+            <h2 className="text-xl xs:text-2xl sm:text-3xl font-display font-black text-cream-100 mb-2 truncate">
               Welcome, {user?.username || 'Challenger'}!
             </h2>
-            <p className="text-sm text-cream-300/80 mb-4">
+            <p className="text-xs xs:text-sm text-cream-300/80 mb-4">
               Pick any quiz below to host a real-time multiplayer room with friends or jump straight into a solo challenge to test your knowledge.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 pt-2">
-            <div className="flex items-center gap-2 text-xs font-bold text-accent-amber bg-ink-800/80 px-3 py-1.5 rounded-xl border border-ink-700">
-              <Award className="w-4 h-4" />
-              {user?.stats?.wins || 0} Wins
+          <div className="flex flex-wrap items-center gap-2 xs:gap-3 pt-2">
+            <div className="flex items-center gap-1.5 xs:gap-2 text-xs font-bold text-accent-amber bg-ink-800/80 px-2.5 xs:px-3 py-1.5 rounded-xl border border-ink-700">
+              <Award className="w-4 h-4 shrink-0" />
+              <span>{user?.stats?.wins || 0} Wins</span>
             </div>
-            <div className="flex items-center gap-2 text-xs font-bold text-accent-coral bg-ink-800/80 px-3 py-1.5 rounded-xl border border-ink-700">
-              <Flame className="w-4 h-4" />
-              {user?.stats?.totalScore || 0} Total Score
+            <div className="flex items-center gap-1.5 xs:gap-2 text-xs font-bold text-accent-coral bg-ink-800/80 px-2.5 xs:px-3 py-1.5 rounded-xl border border-ink-700">
+              <Flame className="w-4 h-4 shrink-0" />
+              <span>{user?.stats?.totalScore || 0} Total Score</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="bg-cream-100 border-2 border-ink-900 rounded-2xl p-4 mb-8 shadow-[3px_3px_0px_0px_#14110F]">
-        <div className="flex flex-col md:flex-row gap-3 items-center justify-between">
+      <div className="bg-cream-100 border-2 border-ink-900 rounded-xl xs:rounded-2xl p-3 xs:p-4 mb-6 sm:mb-8 shadow-[3px_3px_0px_0px_#14110F]">
+        <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
           {/* Search Input */}
           <form onSubmit={handleSearchSubmit} className="relative w-full md:w-80">
             <Search className="w-4 h-4 text-ink-500 absolute left-3 top-3" />
@@ -217,7 +217,7 @@ export const DashboardPage = () => {
                 key={cat}
                 type="button"
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-display font-bold whitespace-nowrap transition-all border-2 ${
+                className={`px-2.5 xs:px-3 py-1.5 rounded-xl text-xs font-display font-bold whitespace-nowrap transition-all border-2 shrink-0 ${
                   selectedCategory === cat
                     ? 'bg-ink-900 text-cream-50 border-ink-900 shadow-[2px_2px_0px_0px_#231E1B]'
                     : 'bg-cream-50 text-ink-800 border-ink-900/30 hover:bg-cream-300'
@@ -229,7 +229,7 @@ export const DashboardPage = () => {
           </div>
 
           {/* Difficulty Dropdown */}
-          <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+          <div className="flex items-center gap-2 w-full md:w-auto justify-between md:justify-end">
             <span className="text-xs font-display font-bold text-ink-700">Difficulty:</span>
             <select
               value={selectedDifficulty}
@@ -263,7 +263,7 @@ export const DashboardPage = () => {
           }}
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {quizzes.map((quiz) => {
             const questionCount = quiz.questionIds?.length || 0;
             const isActing = creatingRoomQuizId === quiz._id;
@@ -272,20 +272,20 @@ export const DashboardPage = () => {
               <Card
                 key={quiz._id}
                 hover
-                className="flex flex-col justify-between border-2 border-ink-900 shadow-[5px_5px_0px_0px_#14110F]"
+                className="flex flex-col justify-between border-2 border-ink-900 shadow-[4px_4px_0px_0px_#14110F] xs:shadow-[5px_5px_0px_0px_#14110F] p-4 xs:p-5"
               >
                 <div>
                   {/* Top metadata tags */}
-                  <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center justify-between mb-3 gap-2">
                     <Badge variant={getDifficultyBadgeVariant(quiz.difficulty)}>
                       {quiz.difficulty}
                     </Badge>
-                    <span className="text-xs font-bold text-ink-600 font-mono">
+                    <span className="text-xs font-bold text-ink-600 font-mono truncate">
                       {quiz.category}
                     </span>
                   </div>
 
-                  <h3 className="text-xl font-display font-extrabold text-ink-950 mb-2 leading-snug">
+                  <h3 className="text-lg xs:text-xl font-display font-extrabold text-ink-950 mb-2 leading-snug line-clamp-2">
                     {quiz.title}
                   </h3>
 
@@ -294,25 +294,26 @@ export const DashboardPage = () => {
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-ink-200">
-                  <div className="flex items-center justify-between text-xs font-bold text-ink-600 mb-4">
-                    <span className="flex items-center gap-1">
-                      <BookOpen className="w-3.5 h-3.5" />
-                      {questionCount} Questions
+                <div className="pt-3 xs:pt-4 border-t border-ink-200">
+                  <div className="flex items-center justify-between text-xs font-bold text-ink-600 mb-3 xs:mb-4 gap-2">
+                    <span className="flex items-center gap-1 truncate">
+                      <BookOpen className="w-3.5 h-3.5 shrink-0" />
+                      <span>{questionCount} Questions</span>
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Flame className="w-3.5 h-3.5 text-accent-coral" />
-                      {quiz.playsCount || 0} Matches Played
+                    <span className="flex items-center gap-1 truncate">
+                      <Flame className="w-3.5 h-3.5 text-accent-coral shrink-0" />
+                      <span>{quiz.playsCount || 0} Matches</span>
                     </span>
                   </div>
 
                   {/* Dual Action Buttons */}
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 xs:grid-cols-2 gap-2">
                     <Button
                       variant="primary"
                       size="sm"
                       isLoading={isActing}
                       onClick={() => handleCreateMultiplayerRoom(quiz._id)}
+                      className="w-full"
                     >
                       <Users className="w-3.5 h-3.5 mr-1" />
                       Host Room
@@ -322,6 +323,7 @@ export const DashboardPage = () => {
                       size="sm"
                       isLoading={isActing}
                       onClick={() => handleStartSoloChallenge(quiz._id)}
+                      className="w-full"
                     >
                       <Play className="w-3.5 h-3.5 mr-1" />
                       Solo Play

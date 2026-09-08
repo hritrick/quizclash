@@ -61,17 +61,17 @@ export const AuthPage = () => {
   };
 
   return (
-    <div className="flex-1 flex items-center justify-center p-4 sm:p-8">
+    <div className="flex-1 flex items-center justify-center p-3 xs:p-4 sm:p-8">
       <div className="w-full max-w-md">
         {/* Card Header */}
-        <div className="text-center mb-6">
-          <div className="inline-flex w-12 h-12 rounded-2xl bg-accent-amber border-2 border-ink-900 items-center justify-center shadow-[3px_3px_0px_0px_#14110F] mb-3">
-            <Zap className="w-6 h-6 text-ink-950 fill-current" />
+        <div className="text-center mb-4 xs:mb-6">
+          <div className="inline-flex w-10 h-10 xs:w-12 xs:h-12 rounded-xl xs:rounded-2xl bg-accent-amber border-2 border-ink-900 items-center justify-center shadow-[2px_2px_0px_0px_#14110F] xs:shadow-[3px_3px_0px_0px_#14110F] mb-2 xs:mb-3">
+            <Zap className="w-5 h-5 xs:w-6 xs:h-6 text-ink-950 fill-current" />
           </div>
-          <h2 className="text-3xl font-display font-extrabold text-ink-950">
+          <h2 className="text-2xl xs:text-3xl font-display font-extrabold text-ink-950">
             {isRegister ? 'Join the Quiz Arena' : 'Welcome Back, Trivia Warrior'}
           </h2>
-          <p className="text-sm text-ink-700 mt-1">
+          <p className="text-xs xs:text-sm text-ink-700 mt-1">
             {isRegister
               ? 'Claim your handle, roll an avatar, and start buzzing.'
               : 'Enter your credentials to access live matches and stats.'}
@@ -79,14 +79,14 @@ export const AuthPage = () => {
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex rounded-xl bg-cream-300 p-1 border-2 border-ink-900 mb-6 shadow-[3px_3px_0px_0px_#14110F]">
+        <div className="flex rounded-xl bg-cream-300 p-1 border-2 border-ink-900 mb-4 xs:mb-6 shadow-[2px_2px_0px_0px_#14110F] xs:shadow-[3px_3px_0px_0px_#14110F]">
           <button
             type="button"
             onClick={() => {
               setIsRegister(false);
               setError(null);
             }}
-            className={`flex-1 py-2 font-display font-bold text-sm rounded-lg transition-all ${
+            className={`flex-1 py-1.5 xs:py-2 font-display font-bold text-xs xs:text-sm rounded-lg transition-all ${
               !isRegister
                 ? 'bg-ink-900 text-cream-50 shadow-sm'
                 : 'text-ink-800 hover:text-ink-950'
@@ -100,7 +100,7 @@ export const AuthPage = () => {
               setIsRegister(true);
               setError(null);
             }}
-            className={`flex-1 py-2 font-display font-bold text-sm rounded-lg transition-all ${
+            className={`flex-1 py-1.5 xs:py-2 font-display font-bold text-xs xs:text-sm rounded-lg transition-all ${
               isRegister
                 ? 'bg-ink-900 text-cream-50 shadow-sm'
                 : 'text-ink-800 hover:text-ink-950'
@@ -111,30 +111,36 @@ export const AuthPage = () => {
         </div>
 
         {/* Main Form Card */}
-        <Card className="shadow-[6px_6px_0px_0px_#14110F]">
+        <Card className="shadow-[4px_4px_0px_0px_#14110F] xs:shadow-[6px_6px_0px_0px_#14110F] p-4 xs:p-6">
           {error && (
-            <div className="mb-4 p-3 bg-rose-100 border-2 border-rose-900/30 rounded-xl text-rose-900 text-sm font-semibold">
+            <div className="mb-4 p-2.5 xs:p-3 bg-rose-100 border-2 border-rose-900/30 rounded-xl text-rose-900 text-xs xs:text-sm font-semibold">
               ⚠️ {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3 xs:space-y-4">
             {isRegister && (
               <>
                 {/* Avatar Preview & Randomizer */}
-                <div className="flex items-center gap-4 p-3 bg-cream-100 rounded-xl border-2 border-ink-900/40">
+                <div className="flex items-center gap-3 xs:gap-4 p-2.5 xs:p-3 bg-cream-100 rounded-xl border-2 border-ink-900/40">
+                  <Avatar
+                    seed={formData.avatarSeed || formData.username || 'quizzer'}
+                    size="md"
+                    className="xs:hidden"
+                  />
                   <Avatar
                     seed={formData.avatarSeed || formData.username || 'quizzer'}
                     size="lg"
+                    className="hidden xs:inline-flex"
                   />
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1 min-w-0">
                     <span className="text-xs font-display font-bold text-ink-800">
                       Player Identity
                     </span>
                     <button
                       type="button"
                       onClick={randomizeAvatar}
-                      className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-cream-50 hover:bg-cream-300 border-2 border-ink-900 rounded-lg text-xs font-display font-bold shadow-[2px_2px_0px_0px_#14110F] active:translate-x-[1px] active:translate-y-[1px]"
+                      className="inline-flex items-center gap-1.5 px-2 xs:px-2.5 py-1 bg-cream-50 hover:bg-cream-300 border-2 border-ink-900 rounded-lg text-xs font-display font-bold shadow-[2px_2px_0px_0px_#14110F] active:translate-x-[1px] active:translate-y-[1px]"
                     >
                       <Dice5 className="w-3.5 h-3.5" />
                       Reroll Avatar
@@ -156,7 +162,7 @@ export const AuthPage = () => {
                         setFormData({ ...formData, username: e.target.value })
                       }
                       placeholder="e.g. MasterMind99"
-                      className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl pl-9 pr-4 py-2.5 font-bold text-ink-950 focus:outline-none focus:ring-2 focus:ring-accent-amber"
+                      className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl pl-9 pr-3 xs:pr-4 py-2 xs:py-2.5 font-bold text-sm xs:text-base text-ink-950 focus:outline-none focus:ring-2 focus:ring-accent-amber"
                     />
                   </div>
                 </div>
@@ -175,7 +181,7 @@ export const AuthPage = () => {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   placeholder="you@domain.com"
-                  className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl pl-9 pr-4 py-2.5 font-bold text-ink-950 focus:outline-none focus:ring-2 focus:ring-accent-amber"
+                  className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl pl-9 pr-3 xs:pr-4 py-2 xs:py-2.5 font-bold text-sm xs:text-base text-ink-950 focus:outline-none focus:ring-2 focus:ring-accent-amber"
                 />
               </div>
             </div>
@@ -192,7 +198,7 @@ export const AuthPage = () => {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   placeholder="••••••••"
-                  className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl pl-9 pr-4 py-2.5 font-bold text-ink-950 focus:outline-none focus:ring-2 focus:ring-accent-amber"
+                  className="w-full bg-cream-100 border-2 border-ink-900 rounded-xl pl-9 pr-3 xs:pr-4 py-2 xs:py-2.5 font-bold text-sm xs:text-base text-ink-950 focus:outline-none focus:ring-2 focus:ring-accent-amber"
                 />
               </div>
             </div>
@@ -202,7 +208,7 @@ export const AuthPage = () => {
                 <label className="block text-xs font-display font-bold uppercase text-ink-800 mb-1">
                   Account Type
                 </label>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-2">
                   <button
                     type="button"
                     onClick={() => setFormData({ ...formData, role: 'player' })}
@@ -212,8 +218,8 @@ export const AuthPage = () => {
                         : 'bg-cream-100 border-ink-600/40 text-ink-700'
                     }`}
                   >
-                    <User className="w-3.5 h-3.5" />
-                    Player (Competitor)
+                    <User className="w-3.5 h-3.5 shrink-0" />
+                    <span>Player (Competitor)</span>
                   </button>
                   <button
                     type="button"
@@ -224,8 +230,8 @@ export const AuthPage = () => {
                         : 'bg-cream-100 border-ink-600/40 text-ink-700'
                     }`}
                   >
-                    <ShieldCheck className="w-3.5 h-3.5" />
-                    Host / Quiz Master
+                    <ShieldCheck className="w-3.5 h-3.5 shrink-0" />
+                    <span>Host / Quiz Master</span>
                   </button>
                 </div>
               </div>
@@ -236,38 +242,38 @@ export const AuthPage = () => {
               variant={isRegister ? 'coral' : 'primary'}
               size="lg"
               isLoading={loading}
-              className="w-full mt-4"
+              className="w-full mt-3 xs:mt-4"
             >
               {isRegister ? 'Create Account & Play' : 'Enter Arena'}
             </Button>
           </form>
 
           {/* Seed accounts helper for quick evaluation */}
-          <div className="mt-6 pt-4 border-t border-ink-300 text-center">
-            <span className="text-[11px] font-bold text-ink-600 uppercase tracking-wider block mb-1">
+          <div className="mt-5 xs:mt-6 pt-3 xs:pt-4 border-t border-ink-300 text-center">
+            <span className="text-[10px] xs:text-[11px] font-bold text-ink-600 uppercase tracking-wider block mb-1">
               Demo Credentials
             </span>
-            <div className="flex flex-wrap justify-center gap-1 text-xs">
+            <div className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-xs">
               <button
                 type="button"
                 onClick={() => {
                   setFormData({ email: 'admin@quizclash.com', password: 'password123' });
                   setIsRegister(false);
                 }}
-                className="underline hover:text-accent-coral"
+                className="underline hover:text-accent-coral font-medium"
               >
-                Admin (admin@quizclash.com)
+                admin@quizclash.com
               </button>
-              <span>•</span>
+              <span className="hidden xs:inline">•</span>
               <button
                 type="button"
                 onClick={() => {
                   setFormData({ email: 'alex@quizclash.com', password: 'password123' });
                   setIsRegister(false);
                 }}
-                className="underline hover:text-accent-amber"
+                className="underline hover:text-accent-amber font-medium"
               >
-                Player (alex@quizclash.com)
+                alex@quizclash.com
               </button>
             </div>
           </div>
