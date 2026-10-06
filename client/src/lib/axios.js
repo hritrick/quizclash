@@ -2,7 +2,8 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: '/api/v1',
-  timeout: 20000,
+  // Render free instances can need over 50 seconds to wake from idle.
+  timeout: 90000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -45,6 +46,7 @@ api.interceptors.response.use(
       !originalRequest.url.includes('/auth/register') &&
       !originalRequest.url.includes('/auth/refresh')
     ) {
+      originalRequest._retry = true;
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -56,14 +58,13 @@ api.interceptors.response.use(
           .catch((err) => Promise.reject(err));
       }
 
-      originalRequest._retry = true;
       isRefreshing = true;
 
       try {
         const { data } = await axios.post(
           '/api/v1/auth/refresh',
           {},
-          { withCredentials: true }
+          { withCredentials: true, timeout: 90000 }
         );
         const newToken = data.data.accessToken;
         localStorage.setItem('quizclash_token', newToken);
