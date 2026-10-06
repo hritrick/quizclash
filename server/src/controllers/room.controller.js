@@ -103,6 +103,10 @@ export const joinRoom = async (req, res, next) => {
       });
     }
 
+    if (room.mode === 'solo' && room.hostId._id.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, error: { code: 'PRIVATE_ROOM', message: 'Solo rooms are private' } });
+    }
+
     if (room.status === 'finished') {
       return res.status(400).json({
         success: false,

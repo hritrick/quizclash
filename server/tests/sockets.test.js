@@ -62,6 +62,9 @@ describe('Socket.IO gameplay regressions', () => {
   test('solo join starts automatically and completed results remain available on reconnect', async () => {
     const host = await signup('SoloHost', 'host');
     const room = await createRoom(host, 'solo');
+    const outsider = await signup('SoloOutsider');
+    const deniedJoin = await request(app).post(`/api/v1/rooms/${room.code}/join`).set('Authorization', `Bearer ${outsider.accessToken}`);
+    expect(deniedJoin.status).toBe(403);
     const socket = await socketFor(host);
     const invalidJoin = event(socket, 'error');
     socket.emit('room:join', null);

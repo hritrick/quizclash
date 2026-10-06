@@ -60,8 +60,8 @@ export class GameEngine {
             username: p.username,
             avatarSeed: p.avatarSeed,
             score: p.score || 0,
-            connected: p.connected,
-            socketId: p.socketId,
+            connected: false,
+            socketId: null,
             powerupsUsed: {
               fiftyFifty: p.powerupsUsed?.fiftyFifty || false,
               doublePoints: p.powerupsUsed?.doublePoints || false,
