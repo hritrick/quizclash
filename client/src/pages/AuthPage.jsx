@@ -248,8 +248,8 @@ export const AuthPage = () => {
             </Button>
           </form>
 
-          {/* Seed accounts helper for quick evaluation */}
-          <div className="mt-5 xs:mt-6 pt-3 xs:pt-4 border-t border-ink-300 text-center">
+          {/* Seed accounts are available only in local development. */}
+          {import.meta.env.DEV && <div className="mt-5 xs:mt-6 pt-3 xs:pt-4 border-t border-ink-300 text-center">
             <span className="text-[10px] xs:text-[11px] font-bold text-ink-600 uppercase tracking-wider block mb-1">
               Demo Credentials
             </span>
@@ -276,7 +276,7 @@ export const AuthPage = () => {
                 alex@quizclash.com
               </button>
             </div>
-          </div>
+          </div>}
         </Card>
       </div>
     </div>
