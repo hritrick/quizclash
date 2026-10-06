@@ -13,15 +13,25 @@
           "name": "1. Register Player",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"username\": \"SpeedyWarrior\",\n  \"email\": \"speedy@quizclash.com\",\n  \"password\": \"password123\",\n  \"role\": \"player\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/register",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "register"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "register"
+              ]
             }
           },
           "event": [
@@ -47,15 +57,25 @@
           "name": "2. Login Player (Capture Token)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"alex@quizclash.com\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           },
           "event": [
@@ -81,15 +101,25 @@
           "name": "3. Login Host (Capture Host Token)",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"host@quizclash.com\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           },
           "event": [
@@ -120,8 +150,13 @@
             ],
             "url": {
               "raw": "{{baseUrl}}/auth/me",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "me"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "me"
+              ]
             }
           },
           "event": [
@@ -146,13 +181,35 @@
           "name": "5. Refresh Token",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "url": {
               "raw": "{{baseUrl}}/auth/refresh",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "refresh"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "refresh"
+              ]
             }
-          }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Refresh succeeds\", () => pm.response.to.have.status(200));",
+                  "pm.test(\"Refresh returns an access token\", () => pm.expect(pm.response.json().data.accessToken).to.be.a(\"string\"));"
+                ]
+              }
+            }
+          ]
         }
       ]
     },
@@ -165,8 +222,12 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/quizzes",
-              "host": ["{{baseUrl}}"],
-              "path": ["quizzes"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "quizzes"
+              ]
             }
           },
           "event": [
@@ -196,8 +257,13 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/quizzes/{{quizId}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["quizzes", "{{quizId}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "quizzes",
+                "{{quizId}}"
+              ]
             }
           },
           "event": [
@@ -209,7 +275,8 @@
                   "    pm.response.to.have.status(200);",
                   "});",
                   "const json = pm.response.json();",
-                  "pm.expect(json.data.quiz._id).to.eql(pm.environment.get('quizId'));"
+                  "pm.expect(json.data.quiz._id).to.eql(pm.environment.get('quizId'));",
+                  "pm.test(\"Public questions hide answer keys\", () => { pm.response.json().data.quiz.questionIds.forEach(q => { pm.expect(q).not.to.have.property(\"correctIndex\"); pm.expect(q).not.to.have.property(\"explanation\"); }); });"
                 ],
                 "type": "text/javascript"
               }
@@ -221,8 +288,14 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -230,8 +303,12 @@
             },
             "url": {
               "raw": "{{baseUrl}}/quizzes",
-              "host": ["{{baseUrl}}"],
-              "path": ["quizzes"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "quizzes"
+              ]
             }
           },
           "event": [
@@ -253,8 +330,14 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{hostToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -262,8 +345,12 @@
             },
             "url": {
               "raw": "{{baseUrl}}/quizzes",
-              "host": ["{{baseUrl}}"],
-              "path": ["quizzes"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "quizzes"
+              ]
             }
           },
           "event": [
@@ -290,8 +377,14 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" },
-              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -299,8 +392,12 @@
             },
             "url": {
               "raw": "{{baseUrl}}/rooms",
-              "host": ["{{baseUrl}}"],
-              "path": ["rooms"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rooms"
+              ]
             }
           },
           "event": [
@@ -327,12 +424,20 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/rooms/{{roomCode}}",
-              "host": ["{{baseUrl}}"],
-              "path": ["rooms", "{{roomCode}}"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rooms",
+                "{{roomCode}}"
+              ]
             }
           },
           "event": [
@@ -354,12 +459,21 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{hostToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{hostToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/rooms/{{roomCode}}/join",
-              "host": ["{{baseUrl}}"],
-              "path": ["rooms", "{{roomCode}}", "join"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "rooms",
+                "{{roomCode}}",
+                "join"
+              ]
             }
           },
           "event": [
@@ -387,8 +501,13 @@
             "method": "GET",
             "url": {
               "raw": "{{baseUrl}}/leaderboard/global",
-              "host": ["{{baseUrl}}"],
-              "path": ["leaderboard", "global"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leaderboard",
+                "global"
+              ]
             }
           },
           "event": [
@@ -412,12 +531,20 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{accessToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/leaderboard/history",
-              "host": ["{{baseUrl}}"],
-              "path": ["leaderboard", "history"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "leaderboard",
+                "history"
+              ]
             }
           },
           "event": [
@@ -443,15 +570,25 @@
           "name": "1. Login Admin",
           "request": {
             "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"email\": \"admin@quizclash.com\",\n  \"password\": \"password123\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/auth/login",
-              "host": ["{{baseUrl}}"],
-              "path": ["auth", "login"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "auth",
+                "login"
+              ]
             }
           },
           "event": [
@@ -475,12 +612,20 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/overview",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "overview"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "overview"
+              ]
             }
           },
           "event": [
@@ -504,12 +649,21 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
             ],
             "url": {
               "raw": "{{baseUrl}}/admin/analytics/questions",
-              "host": ["{{baseUrl}}"],
-              "path": ["admin", "analytics", "questions"]
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "admin",
+                "analytics",
+                "questions"
+              ]
             }
           },
           "event": [

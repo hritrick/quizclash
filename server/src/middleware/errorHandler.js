@@ -49,7 +49,9 @@ export const errorHandler = (err, req, res, next) => {
     success: false,
     error: {
       code: err.code || 'INTERNAL_SERVER_ERROR',
-      message: err.message || 'An unexpected error occurred on the server',
+      message: env.NODE_ENV === 'production' && statusCode >= 500
+        ? 'An unexpected error occurred on the server'
+        : err.message || 'An unexpected error occurred on the server',
       ...(env.NODE_ENV !== 'production' && { stack: err.stack }),
     },
   });

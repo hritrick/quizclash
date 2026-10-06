@@ -12,7 +12,7 @@ export const connectDB = async (customUri = null) => {
   }
 
   try {
-    const conn = await mongoose.connect(uri);
+    const conn = await mongoose.connect(uri, { serverSelectionTimeoutMS: 10000, maxPoolSize: 10 });
     logger.info(`MongoDB Connected: ${conn.connection.host}/${conn.connection.name}`);
     return conn;
   } catch (error) {

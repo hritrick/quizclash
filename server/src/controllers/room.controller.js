@@ -25,10 +25,10 @@ export const createRoom = async (req, res, next) => {
 
     // Generate unique 6-character room code
     let code = nanoid();
-    let existing = await Room.findOne({ code, status: { $in: ['lobby', 'in_progress'] } });
+    let existing = await Room.findOne({ code });
     while (existing) {
       code = nanoid();
-      existing = await Room.findOne({ code, status: { $in: ['lobby', 'in_progress'] } });
+      existing = await Room.findOne({ code });
     }
 
     const room = await Room.create({

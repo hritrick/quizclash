@@ -2,7 +2,7 @@ import { logger } from '../config/logger.js';
 
 export const registerRoomHandlers = (io, socket, gameEngine) => {
   // Join a room lobby or game
-  socket.on('room:join', async ({ code, isSpectator = false }) => {
+  socket.on('room:join', async ({ code, isSpectator = false } = {}) => {
     try {
       if (!code) {
         socket.emit('error', { code: 'INVALID_CODE', message: 'Room code is required' });
@@ -10,10 +10,11 @@ export const registerRoomHandlers = (io, socket, gameEngine) => {
       }
 
       const roomCode = code.toUpperCase();
-      socket.join(roomCode);
-      socket.roomCode = roomCode;
-
       const user = socket.user;
+      if (socket.roomCode && socket.roomCode !== roomCode) {
+        socket.leave(socket.roomCode);
+        await gameEngine.handlePlayerDisconnect(socket.id);
+      }
       const { isSpectator: spectatorStatus, state } = await gameEngine.handlePlayerConnect(
         roomCode,
         user.id,
@@ -23,11 +24,19 @@ export const registerRoomHandlers = (io, socket, gameEngine) => {
         isSpectator
       );
 
+      if (socket.roomCode && socket.roomCode !== roomCode) socket.leave(socket.roomCode);
+      socket.join(roomCode);
+      socket.roomCode = roomCode;
+
       socket.emit('room:joined', {
         roomCode,
         isSpectator: spectatorStatus,
         state,
       });
+
+      if (state.mode === 'solo' && state.status === 'lobby' && user.id === state.hostId && !spectatorStatus) {
+        await gameEngine.startGame(roomCode, user.id);
+      }
 
       logger.info(`User ${user.username} (${user.id}) joined room ${roomCode} [Spectator: ${spectatorStatus}]`);
     } catch (err) {
@@ -39,21 +48,23 @@ export const registerRoomHandlers = (io, socket, gameEngine) => {
   // Leave a room
   socket.on('room:leave', async () => {
     if (socket.roomCode) {
-      socket.leave(socket.roomCode);
+      const roomCode = socket.roomCode;
+      socket.leave(roomCode);
       await gameEngine.handlePlayerDisconnect(socket.id);
-      socket.roomCode = null;
+      if (socket.roomCode === roomCode) socket.roomCode = null;
     }
   });
 
   // Join as spectator explicitly
-  socket.on('spectate:join', async ({ code }) => {
+  socket.on('spectate:join', async ({ code } = {}) => {
     try {
       if (!code) return;
       const roomCode = code.toUpperCase();
-      socket.join(roomCode);
-      socket.roomCode = roomCode;
-
       const user = socket.user;
+      if (socket.roomCode && socket.roomCode !== roomCode) {
+        socket.leave(socket.roomCode);
+        await gameEngine.handlePlayerDisconnect(socket.id);
+      }
       const { isSpectator, state } = await gameEngine.handlePlayerConnect(
         roomCode,
         user.id,
@@ -62,6 +73,9 @@ export const registerRoomHandlers = (io, socket, gameEngine) => {
         socket.id,
         true
       );
+
+      socket.join(roomCode);
+      socket.roomCode = roomCode;
 
       socket.emit('room:joined', {
         roomCode,

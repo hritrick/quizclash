@@ -26,6 +26,10 @@ export const LeaderboardPage = () => {
         user ? api.get('/leaderboard/history') : Promise.resolve({ data: { success: true, data: { matches: [] } } }),
       ]);
 
+      if (lbRes.status === 'rejected' || histRes.status === 'rejected') {
+        setError('Failed to load leaderboard data. Please try again.');
+      }
+
       if (lbRes.status === 'fulfilled' && lbRes.value.data.success) {
         setGlobalLeaderboard(lbRes.value.data.data.leaderboard);
       }

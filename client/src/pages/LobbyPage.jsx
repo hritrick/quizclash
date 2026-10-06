@@ -20,6 +20,7 @@ import { Card } from '../components/ui/Card';
 import { Avatar } from '../components/ui/Avatar';
 import { Badge } from '../components/ui/Badge';
 import { LoadingState } from '../components/ui/LoadingState';
+import { ErrorState } from '../components/ui/ErrorState';
 
 export const LobbyPage = () => {
   const { code } = useParams();
@@ -36,10 +37,10 @@ export const LobbyPage = () => {
 
   // If game transitions to in_progress, redirect to /game/:code
   useEffect(() => {
-    if (room.status === 'in_progress') {
+    if (room.roomCode === code && room.status === 'in_progress') {
       navigate(`/game/${code}`);
     }
-  }, [room.status, code, navigate]);
+  }, [room.status, room.roomCode, code, navigate]);
 
   const handleCopyCode = () => {
     navigator.clipboard.writeText(code);
@@ -56,6 +57,8 @@ export const LobbyPage = () => {
 
   const isHost = room.hostId && user && (room.hostId === user.id || room.hostId === user._id);
   const players = room.players || [];
+
+  if (room.error) return <ErrorState message={room.error} onRetry={() => window.location.reload()} />;
 
   return (
     <div className="flex-1 max-w-7xl mx-auto w-full px-3 xs:px-4 lg:px-8 py-4 sm:py-8">

@@ -11,8 +11,9 @@ export const registerSchema = z.object({
     .email('Invalid email address'),
   password: z
     .string({ required_error: 'Password is required' })
-    .min(6, 'Password must be at least 6 characters'),
-  role: z.enum(['player', 'host', 'admin']).optional().default('player'),
+    .min(6, 'Password must be at least 6 characters')
+    .refine((password) => Buffer.byteLength(password, 'utf8') <= 72, 'Password cannot exceed 72 bytes'),
+  role: z.enum(['player', 'host']).optional().default('player'),
   avatarSeed: z.string().optional(),
 });
 
@@ -20,3 +21,8 @@ export const loginSchema = z.object({
   email: z.string({ required_error: 'Email is required' }).email('Invalid email address'),
   password: z.string({ required_error: 'Password is required' }),
 });
+
+export const updateProfileSchema = z.object({
+  username: registerSchema.shape.username.optional(),
+  avatarSeed: z.string().trim().min(1).max(100).optional(),
+}).strict();

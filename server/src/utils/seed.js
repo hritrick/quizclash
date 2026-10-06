@@ -242,13 +242,16 @@ const seedData = async () => {
         playsCount: Math.floor(Math.random() * 20) + 5,
       });
 
-      const questionDocs = questions.map((q) => ({
-        ...q,
-        quizId: quiz._id,
-        timesAnswered: Math.floor(Math.random() * 30) + 10,
-        timesCorrect: Math.floor(Math.random() * 20) + 5,
-        totalAnswerTimeMs: Math.floor(Math.random() * 150000) + 50000,
-      }));
+      const questionDocs = questions.map((q) => {
+        const timesAnswered = Math.floor(Math.random() * 30) + 10;
+        return {
+          ...q,
+          quizId: quiz._id,
+          timesAnswered,
+          timesCorrect: Math.floor(Math.random() * (timesAnswered + 1)),
+          totalAnswerTimeMs: timesAnswered * Math.floor(Math.random() * q.timeLimitSec * 1000),
+        };
+      });
 
       const createdQ = await Question.insertMany(questionDocs);
       quiz.questionIds = createdQ.map((q) => q._id);

@@ -16,18 +16,23 @@ import {
   applyPowerup,
   setFrozen,
   syncGameState,
+  resetGame,
+  answerRejected,
 } from '../features/game/gameSlice';
 import { sounds } from '../lib/sound';
+import api from '../lib/axios';
 
 export const useQuizSocket = (roomCode, isSpectator = false) => {
   const dispatch = useDispatch();
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const game = useSelector((state) => state.game);
 
   useEffect(() => {
     if (!roomCode || !user) return;
 
     const socket = connectSocket();
+    dispatch(resetGame());
+    dispatch(setRoomError(null));
 
     // Join room when connected
     const handleConnect = () => {
@@ -37,11 +42,8 @@ export const useQuizSocket = (roomCode, isSpectator = false) => {
       });
     };
 
-    if (socket.connected) {
-      handleConnect();
-    } else {
-      socket.on('connect', handleConnect);
-    }
+    socket.on('connect', handleConnect);
+    if (socket.connected) handleConnect();
 
     // Room Events
     socket.on('room:joined', (data) => {
@@ -55,6 +57,7 @@ export const useQuizSocket = (roomCode, isSpectator = false) => {
               status: data.state.status,
               mode: data.state.mode,
               players: data.state.scoreboard,
+              spectatorsCount: data.state.spectatorsCount,
             },
             isSpectator: data.isSpectator,
           })
@@ -73,11 +76,13 @@ export const useQuizSocket = (roomCode, isSpectator = false) => {
 
     // Game Events
     socket.on('game:questionStart', (data) => {
+      dispatch(setRoomError(null));
       dispatch(questionStart(data));
       dispatch(setRoomStatus('in_progress'));
     });
 
     socket.on('game:answerAck', (data) => {
+      dispatch(setRoomError(null));
       dispatch(answerAck(data));
       if (data.isCorrect) {
         sounds.playCorrect();
@@ -99,10 +104,11 @@ export const useQuizSocket = (roomCode, isSpectator = false) => {
       dispatch(gameFinished(data));
       dispatch(setRoomStatus('finished'));
       sounds.playFanfare();
+      api.get('/auth/me').then((res) => updateUser(res.data.data.user)).catch(() => {});
     });
 
     socket.on('powerup:applied', (data) => {
-      dispatch(applyPowerup(data));
+      dispatch(applyPowerup({ ...data, isMine: data.byUserId === user.id }));
 
       if (data.type === 'freeze') {
         sounds.playFreeze();
@@ -114,10 +120,26 @@ export const useQuizSocket = (roomCode, isSpectator = false) => {
 
     socket.on('error', (err) => {
       dispatch(setRoomError(err.message || 'Game error occurred'));
+      if (err.code === 'ANSWER_ERROR') dispatch(answerRejected());
     });
+
+    let refreshingConnection = false;
+    const handleConnectionError = async (err) => {
+      dispatch(setRoomError(`Unable to connect to the quiz server: ${err.message}`));
+      if (err.message === 'Unauthorized socket connection' && !refreshingConnection) {
+        refreshingConnection = true;
+        try {
+          await api.get('/auth/me');
+          socket.connect();
+        } catch {}
+        finally { refreshingConnection = false; }
+      }
+    };
+    socket.on('connect_error', handleConnectionError);
 
     return () => {
       socket.off('connect', handleConnect);
+      socket.off('connect_error', handleConnectionError);
       socket.off('room:joined');
       socket.off('room:playerJoined');
       socket.off('room:playerLeft');
@@ -129,7 +151,7 @@ export const useQuizSocket = (roomCode, isSpectator = false) => {
       socket.off('error');
       socket.emit('room:leave');
     };
-  }, [roomCode, isSpectator, user, dispatch]);
+  }, [roomCode, isSpectator, user?.id, dispatch, updateUser]);
 
   const startGame = useCallback(() => {
     const socket = getSocket();

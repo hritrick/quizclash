@@ -1,28 +1,27 @@
-name: Deploy Frontend to Vercel
+name: Verify Vercel Production Deployment
 
 on:
-  push:
+  workflow_run:
+    workflows: [CI Pipeline]
+    types: [completed]
     branches: [main]
-    paths:
-      - 'client/**'
-      - '.github/workflows/deploy-client.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  deploy-vercel:
-    name: Deploy to Vercel
+  verify:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Deploy to Vercel
-        uses: amondnet/vercel-action@v25
-        if: env.VERCEL_TOKEN != ''
+      - uses: actions/checkout@v4
         with:
-          vercel-token: ${{ secrets.VERCEL_TOKEN }}
-          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
-          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
-          working-directory: ./client
-          vercel-args: '--prod'
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # Vercel's connected Git integration performs deployment on push.
+      - name: Verify deployed commit, database, API, and WebSockets
+        run: node scripts/verify-deployment.mjs https://quizclash-eta.vercel.app "${{ github.event.workflow_run.head_sha || github.sha }}" https://quizclash-06yc.onrender.com

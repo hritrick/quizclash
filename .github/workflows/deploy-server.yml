@@ -1,24 +1,27 @@
-name: Deploy Backend to Render
+name: Verify Render Production Deployment
 
 on:
-  push:
+  workflow_run:
+    workflows: [CI Pipeline]
+    types: [completed]
     branches: [main]
-    paths:
-      - 'server/**'
-      - '.github/workflows/deploy-server.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
-  deploy-render:
-    name: Trigger Render Webhook Deploy
+  verify:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     steps:
-      - name: Trigger Deploy Webhook
-        env:
-          RENDER_DEPLOY_HOOK: ${{ secrets.RENDER_DEPLOY_HOOK }}
-        run: |
-          if [ -n "$RENDER_DEPLOY_HOOK" ]; then
-            curl -X POST "$RENDER_DEPLOY_HOOK"
-            echo "✅ Render deployment hook triggered successfully."
-          else
-            echo "⚠️ RENDER_DEPLOY_HOOK secret is not configured. Skipping webhook trigger."
-          fi
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # Render's connected Git integration performs deployment on push.
+      - name: Verify deployed commit, database, API, and WebSockets
+        run: node scripts/verify-deployment.mjs https://quizclash-06yc.onrender.com "${{ github.event.workflow_run.head_sha || github.sha }}" https://quizclash-06yc.onrender.com

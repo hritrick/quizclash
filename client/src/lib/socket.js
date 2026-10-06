@@ -4,12 +4,9 @@ let socket = null;
 
 export const getSocket = () => {
   if (!socket) {
-    const token = localStorage.getItem('quizclash_token');
-    socket = io('/', {
+    socket = io(import.meta.env.VITE_SOCKET_URL || '/', {
       autoConnect: false,
-      auth: {
-        token,
-      },
+      auth: (callback) => callback({ token: localStorage.getItem('quizclash_token') }),
       reconnection: true,
       reconnectionAttempts: 5,
       reconnectionDelay: 1000,
@@ -20,8 +17,7 @@ export const getSocket = () => {
 
 export const connectSocket = () => {
   const s = getSocket();
-  const token = localStorage.getItem('quizclash_token');
-  s.auth = { token };
+  s.auth = (callback) => callback({ token: localStorage.getItem('quizclash_token') });
   if (!s.connected) {
     s.connect();
   }

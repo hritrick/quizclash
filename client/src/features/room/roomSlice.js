@@ -24,7 +24,7 @@ export const roomSlice = createSlice({
       state.status = room.status;
       state.mode = room.mode || 'multiplayer';
       state.players = room.players || [];
-      state.spectatorCount = room.spectatorIds?.length || 0;
+      state.spectatorCount = room.spectatorsCount ?? room.spectatorIds?.length ?? 0;
       if (isSpectator !== undefined) {
         state.isSpectator = isSpectator;
       }

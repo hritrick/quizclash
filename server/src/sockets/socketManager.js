@@ -4,12 +4,13 @@ import { logger } from '../config/logger.js';
 import { GameEngine } from '../services/gameEngine.js';
 import { registerRoomHandlers } from './roomHandlers.js';
 import { registerGameHandlers } from './gameHandlers.js';
+import { User } from '../models/User.js';
 
 export const initSocketServer = (io) => {
   const gameEngine = new GameEngine(io);
 
   // Socket Authentication Middleware
-  io.use((socket, next) => {
+  io.use(async (socket, next) => {
     try {
       const token =
         socket.handshake.auth?.token ||
@@ -21,7 +22,9 @@ export const initSocketServer = (io) => {
       }
 
       const decoded = jwt.verify(token, env.JWT_SECRET);
-      socket.user = decoded;
+      const user = await User.findById(decoded.id).select('username avatarSeed role');
+      if (!user) return next(new Error('User no longer exists'));
+      socket.user = { id: user.id, username: user.username, avatarSeed: user.avatarSeed, role: user.role };
       next();
     } catch (err) {
       logger.warn(`Socket authentication failed: ${err.message}`);

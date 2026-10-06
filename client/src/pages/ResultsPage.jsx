@@ -10,15 +10,17 @@ import { Card } from '../components/ui/Card';
 import { Badge } from '../components/ui/Badge';
 import { resetGame } from '../features/game/gameSlice';
 import { resetRoom } from '../features/room/roomSlice';
+import { useQuizSocket } from '../hooks/useQuizSocket';
 
 export const ResultsPage = () => {
   const { code } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { user } = useAuth();
+  useQuizSocket(code);
 
   const game = useSelector((state) => state.game);
-  const scoreboard = game.finalScoreboard || game.scoreboard || [];
+  const scoreboard = game.finalScoreboard.length ? game.finalScoreboard : game.scoreboard;
 
   useEffect(() => {
     // Fire celebratory confetti on mount

@@ -35,7 +35,7 @@ A high-intensity, full-stack real-time multiplayer General Knowledge quiz platfo
 | 6 | **JWT Auth & Roles** | `player`, `host`, `admin` roles; access token (15m) + httpOnly refresh token cookie with automatic token rotation |
 | 7 | **Postman Collection** | Complete collection + environment with automated `pm.test` assertions & token capturing |
 | 8 | **WebSockets (Socket.io)** | Real-time lobbies, countdown sync, live buzzer answers, power-ups, spectator mode |
-| 9 | **CI/CD** | GitHub Actions workflows for backend testing (`ci.yml`), Render deploy (`deploy-server.yml`), and Vercel deploy (`deploy-client.yml`) |
+| 9 | **CI/CD** | GitHub Actions tests, frontend build and Docker builds; native Git deployments to Render/Vercel followed by database, revision, REST and socket readiness checks |
 | 10 | **Docker & DevOps** | Multi-stage Dockerfiles for client (Nginx) & server, plus `docker-compose.yml` |
 
 ---
@@ -63,12 +63,14 @@ A high-intensity, full-stack real-time multiplayer General Knowledge quiz platfo
 ### 2. Install Dependencies
 From the repository root:
 ```bash
-npm run install:all
+npm ci
 ```
+
+Copy `server/.env.example` to `server/.env`. Its defaults are for development only.
 
 ### 3. Start MongoDB (via Docker)
 ```bash
-docker compose up -d mongo
+docker run -d --name quizclash-mongo -p 27017:27017 mongo:7
 ```
 
 ### 4. Seed Database with Quizzes & Users
@@ -85,7 +87,7 @@ npm run dev
 
 ---
 
-## 👥 Demo Accounts (Seeded)
+## 👥 Demo Accounts (Local fixtures only)
 
 | Role | Email | Password |
 |---|---|---|
@@ -104,7 +106,10 @@ npm test
 Verifies:
 - Time-weighted scoring algorithm & multipliers
 - Registration, login, JWT validation, and token refresh
-- Role guard authorization (player restricted from creating quizzes; host permitted)
+- Public registration cannot create admins; host signup remains supported
+- Answer redaction, question ownership, private production signing keys
+- One-time refresh rotation, including simultaneous replay
+- Real socket solo startup, multiplayer scoring, reconnect, spectator and all power-ups
 
 ---
 
@@ -125,11 +130,37 @@ npx newman run postman/QuizClash.postman_collection.json -e postman/QuizClash.po
 
 To launch the full stack locally in containers:
 ```bash
-docker compose up --build
+JWT_SECRET=<private-32+-character-key> JWT_REFRESH_SECRET=<different-private-key> COOKIE_SECRET=<private-key> docker compose up --build
 ```
 Access the client at `http://localhost:5173` and backend at `http://localhost:5000`.
 
 ---
+
+## Production configuration
+
+The Vercel frontend proxies `/api/*` to `https://quizclash-06yc.onrender.com` so refresh cookies remain on the frontend origin. WebSocket traffic connects directly to Render using `client/.env.production`. This follows [Vercel external-origin routing](https://vercel.com/docs/routing/rewrites).
+
+Render uses branch `main`, build command `npm ci --omit=dev --workspace server`, start command `node server/src/server.js`, and health check `/health`. Configure these environment variables securely on Render:
+
+- `NODE_ENV=production`
+- `MONGO_URI`: MongoDB Atlas connection string for the application's database
+- `JWT_SECRET` and `JWT_REFRESH_SECRET`: different private random values, each at least 32 characters
+- `COOKIE_SECRET`: private random value
+- `CLIENT_URL=https://quizclash-eta.vercel.app`
+
+Production fails startup when signing keys are missing or use the public development examples. No server secrets belong in `VITE_*` variables. Configure Atlas networking to permit the Render service's outbound addresses. Do not run the development seed against an existing production database: it deletes all collections and installs publicly known demo passwords. Create production admin accounts through a trusted provisioning process; public signup offers player or host only.
+
+Pushes to `main` trigger the existing Git integrations. GitHub Actions verifies the deployed commit and backend readiness after CI succeeds. Verification fails when configuration or deployment is missing. The realtime engine runs in one Node process; horizontally scaling it requires shared game state and a Socket.IO adapter, and active rounds currently do not survive process restarts.
+
+For isolated browser or Postman verification without touching Atlas:
+
+```bash
+node scripts/dev-test-server.mjs
+# In a separate terminal
+npm run dev:client
+```
+
+This fixture starts an ephemeral seeded MongoDB database and an API on `127.0.0.1:5000`. Stop it after testing.
 
 ## 📜 License
 MIT

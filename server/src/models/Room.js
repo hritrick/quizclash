@@ -32,6 +32,7 @@ const playerSubSchema = new mongoose.Schema(
       doublePoints: { type: Boolean, default: false },
       freeze: { type: Boolean, default: false },
     },
+    correctCount: { type: Number, default: 0 },
     frozenUntil: {
       type: Number,
       default: 0,

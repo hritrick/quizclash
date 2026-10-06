@@ -1,12 +1,13 @@
 import React, { createContext, useState, useEffect, useCallback } from 'react';
 import api from '../../lib/axios';
+import { disconnectSocket } from '../../lib/socket';
 
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(() => {
     const saved = localStorage.getItem('quizclash_user');
-    return saved ? JSON.parse(saved) : null;
+    try { return saved ? JSON.parse(saved) : null; } catch { return null; }
   });
   const [token, setToken] = useState(() => localStorage.getItem('quizclash_token'));
   const [loading, setLoading] = useState(true);
@@ -20,6 +21,7 @@ export const AuthProvider = ({ children }) => {
           const res = await api.get('/auth/me');
           if (res.data.success) {
             setUser(res.data.data.user);
+            setToken(localStorage.getItem('quizclash_token'));
             localStorage.setItem('quizclash_user', JSON.stringify(res.data.data.user));
           }
         } catch {
@@ -30,6 +32,13 @@ export const AuthProvider = ({ children }) => {
     };
 
     checkAuth();
+    const expireSession = () => {
+      setUser(null);
+      setToken(null);
+      disconnectSocket();
+    };
+    window.addEventListener('quizclash:session-expired', expireSession);
+    return () => window.removeEventListener('quizclash:session-expired', expireSession);
   }, []);
 
   const login = useCallback(async (email, password) => {
@@ -70,6 +79,7 @@ export const AuthProvider = ({ children }) => {
     setToken(null);
     localStorage.removeItem('quizclash_token');
     localStorage.removeItem('quizclash_user');
+    disconnectSocket();
   }, []);
 
   const updateUser = useCallback((updated) => {

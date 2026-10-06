@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { randomUUID } from 'node:crypto';
 import { env } from '../config/env.js';
 import { User } from '../models/User.js';
 
@@ -22,7 +23,7 @@ export const generateRefreshToken = (user) => {
       id: user._id.toString(),
     },
     env.JWT_REFRESH_SECRET,
-    { expiresIn: env.JWT_REFRESH_EXPIRES_IN }
+    { expiresIn: env.JWT_REFRESH_EXPIRES_IN, jwtid: randomUUID() }
   );
 };
 

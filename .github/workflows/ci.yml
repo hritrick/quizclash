@@ -8,7 +8,7 @@ on:
 
 jobs:
   backend-test:
-    name: Backend Lint & Unit Tests
+    name: Backend & Postman Integration Tests
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -19,13 +19,25 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: server/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install Server Dependencies
-        run: cd server && npm ci
+        run: npm ci
 
       - name: Run Backend Tests
-        run: cd server && npm test
+        run: npm test --workspace server
+
+      - name: Run Postman collection against disposable fixtures
+        run: |
+          node scripts/dev-test-server.mjs > /tmp/quizclash-fixture.log 2>&1 &
+          fixture_pid=$!
+          trap 'kill "$fixture_pid"' EXIT
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:5000/health > /dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:5000/health
+          npx --yes newman@6 run postman/QuizClash.postman_collection.json -e postman/QuizClash.postman_environment.json
 
   frontend-build:
     name: Frontend Build Check
@@ -39,10 +51,18 @@ jobs:
         with:
           node-version: 20
           cache: 'npm'
-          cache-dependency-path: client/package-lock.json
+          cache-dependency-path: package-lock.json
 
       - name: Install Client Dependencies
-        run: cd client && npm ci
+        run: npm ci
 
       - name: Run Client Build
         run: cd client && npm run build
+
+  docker-build:
+    name: Docker Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t quizclash-server ./server
+      - run: docker build -t quizclash-client ./client

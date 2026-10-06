@@ -9,7 +9,7 @@ export const getQuizzes = async (req, res, next) => {
     if (category && category !== 'All') filter.category = category;
     if (difficulty && difficulty !== 'All') filter.difficulty = difficulty;
     if (search) {
-      filter.title = { $regex: search, $options: 'i' };
+      filter.title = { $regex: String(search).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), $options: 'i' };
     }
 
     const skip = (Number(page) - 1) * Number(limit);
@@ -43,7 +43,7 @@ export const getQuizById = async (req, res, next) => {
     const { id } = req.params;
     const quiz = await Quiz.findById(id)
       .populate('createdBy', 'username avatarSeed')
-      .populate('questionIds');
+      .populate('questionIds', '-correctIndex -explanation');
 
     if (!quiz) {
       return res.status(404).json({
@@ -233,7 +233,10 @@ export const deleteQuestion = async (req, res, next) => {
       });
     }
 
-    await Question.findByIdAndDelete(questionId);
+    const question = await Question.findOneAndDelete({ _id: questionId, quizId: quiz._id });
+    if (!question) {
+      return res.status(404).json({ success: false, error: { code: 'NOT_FOUND', message: 'Question not found in this quiz' } });
+    }
     quiz.questionIds = quiz.questionIds.filter((qid) => qid.toString() !== questionId);
     await quiz.save();
 

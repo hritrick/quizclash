@@ -10,6 +10,7 @@ export class GameEngine {
     this.io = io;
     // In-memory active game state keyed by room code
     this.games = new Map();
+    this.loadingGames = new Map();
   }
 
   // Calculate score based on response time and multipliers
@@ -27,6 +28,14 @@ export class GameEngine {
       return this.games.get(roomCode);
     }
 
+    if (this.loadingGames.has(roomCode)) return this.loadingGames.get(roomCode);
+    const loading = this.loadGame(roomCode);
+    this.loadingGames.set(roomCode, loading);
+    try { return await loading; }
+    finally { this.loadingGames.delete(roomCode); }
+  }
+
+  async loadGame(roomCode) {
     const room = await Room.findOne({ code: roomCode }).populate({
       path: 'quizId',
       populate: { path: 'questionIds' },
@@ -61,15 +70,18 @@ export class GameEngine {
             currentAnswer: null, // { optionIndex, answerTimeMs, isCorrect, pointsEarned }
             activeMultiplier: 1,
             frozenUntil: 0,
-            correctCount: 0,
+            correctCount: p.correctCount || 0,
           },
         ])
       ),
       spectators: new Set(room.spectatorIds.map((id) => id.toString())),
+      spectatorSockets: new Map(),
       questionTimer: null,
       revealTimer: null,
       questionStartTime: 0,
       questionEndsAt: 0,
+      acceptingAnswers: false,
+      revealState: null,
     };
 
     this.games.set(roomCode, gameData);
@@ -81,7 +93,7 @@ export class GameEngine {
     const game = await this.getOrLoadGame(roomCode);
     if (!game) throw new Error('Game room not found');
 
-    if (game.hostId !== userId && game.mode !== 'solo') {
+    if (game.hostId !== userId) {
       throw new Error('Only the host can start the game');
     }
 
@@ -89,8 +101,8 @@ export class GameEngine {
       throw new Error('Quiz has no questions');
     }
 
-    if (game.status === 'in_progress') {
-      throw new Error('Game is already in progress');
+    if (game.status !== 'lobby') {
+      throw new Error('Only a lobby game can be started');
     }
 
     game.status = 'in_progress';
@@ -130,11 +142,14 @@ export class GameEngine {
 
     game.questionStartTime = now;
     game.questionEndsAt = now + timeLimitMs;
+    game.acceptingAnswers = true;
+    game.revealState = null;
 
     // Reset per-question round answers and multipliers
     for (const [, player] of game.players) {
       player.currentAnswer = null;
       player.activeMultiplier = 1;
+      player.removedOptions = [];
     }
 
     // Prepare client-safe question (omit correctIndex & explanation)
@@ -169,6 +184,9 @@ export class GameEngine {
     if (game.status !== 'in_progress') {
       throw new Error('Game is not currently active');
     }
+
+    if (!game.acceptingAnswers || Date.now() >= game.questionEndsAt) throw new Error('This question is closed');
+    if (!Number.isInteger(optionIndex) || optionIndex < 0 || optionIndex > 3) throw new Error('Invalid answer option');
 
     if (game.currentQuestionIndex !== questionIndex) {
       throw new Error('Invalid question index');
@@ -245,8 +263,9 @@ export class GameEngine {
 
     if (allAnswered) {
       if (game.questionTimer) clearTimeout(game.questionTimer);
+      game.acceptingAnswers = false;
       // Give a tiny 400ms beat so UI feels responsive before revealing
-      setTimeout(() => {
+      game.questionTimer = setTimeout(() => {
         this.endCurrentQuestion(roomCode);
       }, 400);
     }
@@ -261,8 +280,11 @@ export class GameEngine {
       throw new Error('Game is not currently active');
     }
 
+    if (!['fiftyFifty', 'doublePoints', 'freeze'].includes(type)) throw new Error('Unknown power-up type');
+    if (!game.acceptingAnswers || Date.now() >= game.questionEndsAt) throw new Error('This question is closed');
     const player = game.players.get(userId);
     if (!player) throw new Error('Player not found');
+    if (player.currentAnswer) throw new Error('Answer already submitted');
 
     if (player.powerupsUsed[type]) {
       throw new Error(`Power-up '${type}' has already been used in this match`);
@@ -271,8 +293,6 @@ export class GameEngine {
     const currentQ = game.questions[game.currentQuestionIndex];
     if (!currentQ) throw new Error('No active question');
 
-    player.powerupsUsed[type] = true;
-
     if (type === 'fiftyFifty') {
       // Pick 2 wrong option indices to remove
       const correctIdx = currentQ.correctIndex;
@@ -280,6 +300,8 @@ export class GameEngine {
       // Shuffle wrong indices and take 2
       const shuffledWrong = wrongIndices.sort(() => Math.random() - 0.5);
       const removedOptions = [shuffledWrong[0], shuffledWrong[1]];
+      player.powerupsUsed[type] = true;
+      player.removedOptions = removedOptions;
 
       // Send to the player only
       if (player.socketId) {
@@ -293,6 +315,7 @@ export class GameEngine {
     }
 
     if (type === 'doublePoints') {
+      player.powerupsUsed[type] = true;
       player.activeMultiplier = 2;
       if (player.socketId) {
         this.io.to(player.socketId).emit('powerup:applied', {
@@ -316,6 +339,8 @@ export class GameEngine {
         }
       }
 
+      if (!targetUserId || targetUserId === userId || !game.players.get(targetUserId)?.connected) throw new Error('No connected rival to freeze');
+      player.powerupsUsed[type] = true;
       if (targetUserId) {
         const targetPlayer = game.players.get(targetUserId);
         if (targetPlayer) {
@@ -342,7 +367,8 @@ export class GameEngine {
   // End current question and reveal answers + scoreboard
   async endCurrentQuestion(roomCode) {
     const game = this.games.get(roomCode);
-    if (!game) return;
+    if (!game || game.status !== 'in_progress' || game.revealState) return;
+    game.acceptingAnswers = false;
 
     if (game.questionTimer) clearTimeout(game.questionTimer);
 
@@ -362,13 +388,14 @@ export class GameEngine {
     }));
 
     // Broadcast results
-    this.io.to(roomCode).emit('game:questionEnd', {
+    game.revealState = {
       questionIndex: game.currentQuestionIndex,
       correctIndex,
       explanation: currentQ.explanation || '',
       perPlayerResult,
       scoreboard,
-    });
+    };
+    this.io.to(roomCode).emit('game:questionEnd', game.revealState);
 
     // Update Room DB state
     await Room.updateOne(
@@ -383,6 +410,7 @@ export class GameEngine {
           connected: p.connected,
           socketId: p.socketId,
           powerupsUsed: p.powerupsUsed,
+          correctCount: p.correctCount,
           hasAnsweredCurrent: p.currentAnswer !== null,
           lastAnswerCorrect: p.currentAnswer ? p.currentAnswer.isCorrect : false,
           lastAnswerPoints: p.currentAnswer ? p.currentAnswer.pointsEarned : 0,
@@ -399,15 +427,12 @@ export class GameEngine {
   // Finish game, record match history, update user stats
   async finishGame(roomCode) {
     const game = this.games.get(roomCode);
-    if (!game) return;
+    if (!game || game.status === 'finished') return;
 
     game.status = 'finished';
+    game.acceptingAnswers = false;
     const finalScoreboard = this.getRankedScoreboard(game);
 
-    this.io.to(roomCode).emit('game:finished', {
-      finalScoreboard,
-      totalQuestions: game.questions.length,
-    });
 
     try {
       // Save MatchHistory
@@ -456,10 +481,16 @@ export class GameEngine {
       logger.error(`Error saving match history: ${err.message}`);
     }
 
+    this.io.to(roomCode).emit('game:finished', {
+      finalScoreboard,
+      totalQuestions: game.questions.length,
+    });
+
     // Clean up memory after 10 minutes
-    setTimeout(() => {
+    game.cleanupTimer = setTimeout(() => {
       this.games.delete(roomCode);
     }, 10 * 60 * 1000);
+    game.cleanupTimer.unref?.();
   }
 
   // Get ranked scoreboard
@@ -483,17 +514,22 @@ export class GameEngine {
   async handlePlayerConnect(roomCode, userId, username, avatarSeed, socketId, isSpectator = false) {
     const game = await this.getOrLoadGame(roomCode);
     if (!game) throw new Error('Game not found');
+    if (game.mode === 'solo' && userId !== game.hostId && !isSpectator) throw new Error('Solo rooms are private');
 
     if (isSpectator) {
       game.spectators.add(userId);
+      game.spectatorSockets.set(socketId, userId);
+      this.broadcastPlayers(game);
       return { isSpectator: true, state: this.getGameStateForClient(game, userId) };
     }
 
     let player = game.players.get(userId);
     if (!player) {
-      if (game.status === 'in_progress') {
+      if (game.status !== 'lobby') {
         // Auto convert to spectator
         game.spectators.add(userId);
+        game.spectatorSockets.set(socketId, userId);
+        this.broadcastPlayers(game);
         return { isSpectator: true, state: this.getGameStateForClient(game, userId) };
       }
       player = {
@@ -514,19 +550,31 @@ export class GameEngine {
       player.connected = true;
       player.socketId = socketId;
     }
+    game.spectators.delete(userId);
+    game.spectatorSockets.delete(socketId);
+    if (game.status === 'lobby') {
+      await Room.updateOne({ code: roomCode }, { players: Array.from(game.players.values()) });
+    }
 
     // Broadcast updated player list
-    this.io.to(roomCode).emit('room:playerJoined', {
-      players: Array.from(game.players.values()),
-      spectatorsCount: game.spectators.size,
-    });
+    this.broadcastPlayers(game);
 
     return { isSpectator: false, state: this.getGameStateForClient(game, userId) };
+  }
+
+  broadcastPlayers(game) {
+    this.io.to(game.code).emit('room:playerJoined', { players: this.getRankedScoreboard(game), spectatorsCount: game.spectators.size });
   }
 
   // Handle player disconnect
   async handlePlayerDisconnect(socketId) {
     for (const [code, game] of this.games.entries()) {
+      const spectatorId = game.spectatorSockets.get(socketId);
+      if (spectatorId) {
+        game.spectatorSockets.delete(socketId);
+        if (![...game.spectatorSockets.values()].includes(spectatorId)) game.spectators.delete(spectatorId);
+        this.broadcastPlayers(game);
+      }
       for (const [userId, player] of game.players.entries()) {
         if (player.socketId === socketId) {
           player.connected = false;
@@ -535,7 +583,7 @@ export class GameEngine {
           this.io.to(code).emit('room:playerLeft', {
             userId,
             username: player.username,
-            players: Array.from(game.players.values()),
+            players: this.getRankedScoreboard(game),
           });
           break;
         }
@@ -575,8 +623,17 @@ export class GameEngine {
       activeQuestion,
       endsAt: game.questionEndsAt,
       isSpectator,
+      spectatorsCount: game.spectators.size,
       scoreboard: this.getRankedScoreboard(game),
-      myPlayer: player || null,
+      revealState: game.revealState,
+      finalScoreboard: game.status === 'finished' ? this.getRankedScoreboard(game) : [],
+      myPlayer: player ? {
+        powerupsUsed: player.powerupsUsed,
+        activeMultiplier: player.activeMultiplier,
+        frozenUntil: player.frozenUntil,
+        removedOptions: player.removedOptions || [],
+        currentAnswer: player.currentAnswer,
+      } : null,
     };
   }
 }

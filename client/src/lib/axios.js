@@ -2,6 +2,7 @@ import axios from 'axios';
 
 const api = axios.create({
   baseURL: '/api/v1',
+  timeout: 20000,
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
@@ -66,13 +67,13 @@ api.interceptors.response.use(
         );
         const newToken = data.data.accessToken;
         localStorage.setItem('quizclash_token', newToken);
-        api.defaults.headers.common.Authorization = `Bearer ${newToken}`;
         processQueue(null, newToken);
         return api(originalRequest);
       } catch (refreshError) {
         processQueue(refreshError, null);
         localStorage.removeItem('quizclash_token');
         localStorage.removeItem('quizclash_user');
+        window.dispatchEvent(new Event('quizclash:session-expired'));
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

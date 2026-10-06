@@ -1,10 +1,13 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import { createHash } from 'node:crypto';
 import { User } from '../models/User.js';
 import { env } from '../config/env.js';
 import { generateAccessToken, generateRefreshToken } from '../middleware/auth.js';
 
 const REFRESH_COOKIE_NAME = 'quizclash_refresh';
+// bcrypt only consumes 72 bytes; digest the complete JWT before hashing it.
+const refreshDigest = (token) => createHash('sha256').update(token).digest('hex');
 
 const setRefreshCookie = (res, token) => {
   res.cookie(REFRESH_COOKIE_NAME, token, {
@@ -19,6 +22,10 @@ const setRefreshCookie = (res, token) => {
 export const register = async (req, res, next) => {
   try {
     const { username, email, password, role, avatarSeed } = req.body;
+
+    if (role && !['player', 'host'].includes(role)) {
+      return res.status(400).json({ success: false, error: { code: 'INVALID_ROLE', message: 'Registration supports player and host roles only' } });
+    }
 
     const existingUser = await User.findOne({
       $or: [{ email: email.toLowerCase() }, { username }],
@@ -48,7 +55,7 @@ export const register = async (req, res, next) => {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    user.refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+    user.refreshTokenHash = await bcrypt.hash(refreshDigest(refreshToken), 10);
     await user.save();
 
     setRefreshCookie(res, refreshToken);
@@ -101,7 +108,7 @@ export const login = async (req, res, next) => {
     const accessToken = generateAccessToken(user);
     const refreshToken = generateRefreshToken(user);
 
-    user.refreshTokenHash = await bcrypt.hash(refreshToken, 10);
+    user.refreshTokenHash = await bcrypt.hash(refreshDigest(refreshToken), 10);
     await user.save();
 
     setRefreshCookie(res, refreshToken);
@@ -163,11 +170,10 @@ export const refresh = async (req, res, next) => {
       });
     }
 
-    const isValid = await bcrypt.compare(refreshToken, user.refreshTokenHash);
+    const isValid = await bcrypt.compare(refreshDigest(refreshToken), user.refreshTokenHash);
     if (!isValid) {
       // Possible token reuse attack — invalidate all tokens
-      user.refreshTokenHash = null;
-      await user.save();
+      await User.updateOne({ _id: user._id, refreshTokenHash: user.refreshTokenHash }, { $set: { refreshTokenHash: null } });
       res.clearCookie(REFRESH_COOKIE_NAME);
       return res.status(403).json({
         success: false,
@@ -182,8 +188,14 @@ export const refresh = async (req, res, next) => {
     const newAccessToken = generateAccessToken(user);
     const newRefreshToken = generateRefreshToken(user);
 
-    user.refreshTokenHash = await bcrypt.hash(newRefreshToken, 10);
-    await user.save();
+    const nextHash = await bcrypt.hash(refreshDigest(newRefreshToken), 10);
+    const rotated = await User.updateOne(
+      { _id: user._id, refreshTokenHash: user.refreshTokenHash },
+      { $set: { refreshTokenHash: nextHash } }
+    );
+    if (rotated.modifiedCount !== 1) {
+      return res.status(403).json({ success: false, error: { code: 'TOKEN_COMPROMISED', message: 'Refresh token has already been used' } });
+    }
 
     setRefreshCookie(res, newRefreshToken);
 
@@ -271,7 +283,7 @@ export const updateMe = async (req, res, next) => {
       updates.username = username;
     }
 
-    const updated = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).select('-passwordHash -refreshTokenHash');
+    const updated = await User.findByIdAndUpdate(req.user._id, updates, { new: true, runValidators: true }).select('-passwordHash -refreshTokenHash');
 
     res.status(200).json({
       success: true,

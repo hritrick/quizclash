@@ -23,6 +23,7 @@ import { Badge } from '../components/ui/Badge';
 import { Button } from '../components/ui/Button';
 import { Toast } from '../components/ui/Toast';
 import { LoadingState } from '../components/ui/LoadingState';
+import { ErrorState } from '../components/ui/ErrorState';
 
 const TILE_SHAPES = [
   { shape: '▲', name: 'Triangle', bg: 'bg-tile-red hover:bg-rose-700', activeShadow: '#9B1C1C' },
@@ -69,7 +70,7 @@ export const LiveGamePage = () => {
   }, [game.isFinished, code, navigate]);
 
   const handleTileClick = (index) => {
-    if (isSpectator || isFrozen || game.selectedOptionIndex !== null || game.revealState) {
+    if (isSpectator || isFrozen || isExpired || game.selectedOptionIndex !== null || game.revealState) {
       return;
     }
     dispatch(selectOption(index));
@@ -85,6 +86,8 @@ export const LiveGamePage = () => {
   const reveal = game.revealState;
   const myPlayerInScoreboard = game.scoreboard.find((p) => p.userId === user?.id);
 
+  if (room.error && !currentQ) return <ErrorState message={room.error} onRetry={() => window.location.reload()} />;
+
   if (!currentQ && !game.isFinished) {
     return (
       <div className="flex-1 flex items-center justify-center">
@@ -95,6 +98,7 @@ export const LiveGamePage = () => {
 
   return (
     <div className="flex-1 max-w-6xl mx-auto w-full px-3 xs:px-4 lg:px-8 py-3 xs:py-4 sm:py-6 flex flex-col justify-between select-none">
+      {room.error && <p role="alert" className="mb-3 text-sm font-bold text-rose-700">{room.error}</p>}
       {/* Toast Alert for Freeze or Multiplier Notice */}
       {game.freezeNotice && (
         <Toast

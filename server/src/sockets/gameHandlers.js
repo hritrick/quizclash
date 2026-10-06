@@ -2,7 +2,7 @@ import { logger } from '../config/logger.js';
 
 export const registerGameHandlers = (io, socket, gameEngine) => {
   // Host triggers game start
-  socket.on('host:start', async ({ code }) => {
+  socket.on('host:start', async ({ code } = {}) => {
     try {
       const roomCode = (code || socket.roomCode)?.toUpperCase();
       if (!roomCode) {
@@ -19,7 +19,7 @@ export const registerGameHandlers = (io, socket, gameEngine) => {
   });
 
   // Player submits answer to current question
-  socket.on('answer:submit', async (payload) => {
+  socket.on('answer:submit', async (payload = {}) => {
     try {
       const roomCode = (payload.code || socket.roomCode)?.toUpperCase();
       if (!roomCode) {
@@ -39,7 +39,7 @@ export const registerGameHandlers = (io, socket, gameEngine) => {
   });
 
   // Player uses a power-up (fiftyFifty, doublePoints, freeze)
-  socket.on('powerup:use', async ({ type, targetUserId, code }) => {
+  socket.on('powerup:use', async ({ type, targetUserId, code } = {}) => {
     try {
       const roomCode = (code || socket.roomCode)?.toUpperCase();
       if (!roomCode) {

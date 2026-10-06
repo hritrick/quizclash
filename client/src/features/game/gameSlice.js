@@ -40,6 +40,8 @@ export const gameSlice = createSlice({
       state.answerResult = null;
       state.removedOptionIndices = [];
       state.revealState = null;
+      state.activeMultiplier = 1;
+      state.frozenUntil = 0;
       if (scoreboard) state.scoreboard = scoreboard;
       state.isFinished = false;
     },
@@ -73,7 +75,7 @@ export const gameSlice = createSlice({
         state.powerupsUsed.doublePoints = true;
         state.activeMultiplier = multiplier || 2;
       } else if (type === 'freeze') {
-        state.powerupsUsed.freeze = true;
+        if (action.payload.isMine) state.powerupsUsed.freeze = true;
         state.freezeNotice = {
           byUsername,
           targetUsername,
@@ -95,9 +97,22 @@ export const gameSlice = createSlice({
       state.currentQuestion = activeQuestion;
       state.endsAt = endsAt;
       state.scoreboard = scoreboard || [];
+      state.timeLimitSec = activeQuestion?.timeLimitSec || 15;
+      state.selectedOptionIndex = myPlayer?.currentAnswer?.optionIndex ?? null;
+      state.answerAcknowledged = Boolean(myPlayer?.currentAnswer);
+      state.answerResult = myPlayer?.currentAnswer || null;
+      state.activeMultiplier = myPlayer?.activeMultiplier || 1;
+      state.frozenUntil = myPlayer?.frozenUntil || 0;
+      state.removedOptionIndices = myPlayer?.removedOptions || [];
+      state.revealState = action.payload.revealState || null;
+      state.isFinished = action.payload.status === 'finished';
+      state.finalScoreboard = action.payload.finalScoreboard || [];
       if (myPlayer?.powerupsUsed) {
         state.powerupsUsed = myPlayer.powerupsUsed;
       }
+    },
+    answerRejected: (state) => {
+      if (!state.answerAcknowledged) state.selectedOptionIndex = null;
     },
     resetGame: () => initialState,
   },
@@ -114,6 +129,7 @@ export const {
   clearFreezeNotice,
   syncGameState,
   resetGame,
+  answerRejected,
 } = gameSlice.actions;
 
 export default gameSlice.reducer;

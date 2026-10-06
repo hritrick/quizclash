@@ -2,6 +2,7 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import mongoose from 'mongoose';
 import { env } from './config/env.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -16,6 +17,7 @@ import userRoutes from './routes/user.routes.js';
 
 export const createApp = () => {
   const app = express();
+  if (env.NODE_ENV === 'production') app.set('trust proxy', 1);
 
   // Security Headers
   app.use(
@@ -40,7 +42,7 @@ export const createApp = () => {
         if (!origin || allowedOrigins.includes(origin) || env.NODE_ENV !== 'production') {
           callback(null, true);
         } else {
-          callback(new Error('Blocked by CORS'));
+          callback(Object.assign(new Error('Blocked by CORS'), { statusCode: 403 }));
         }
       },
       credentials: true,
@@ -56,13 +58,18 @@ export const createApp = () => {
 
   // Health Check
   app.get('/health', (req, res) => {
-    res.status(200).json({
-      status: 'ok',
+    const ready = mongoose.connection.readyState === 1;
+    res.status(ready ? 200 : 503).json({
+      status: ready ? 'ok' : 'unavailable',
+      database: ready ? 'connected' : 'disconnected',
+      revision: process.env.RENDER_GIT_COMMIT || null,
       service: 'QuizClash Backend API',
       timestamp: new Date().toISOString(),
       env: env.NODE_ENV,
     });
   });
+
+  app.get('/api/health', (req, res) => res.redirect(307, '/health'));
 
   // Apply general rate limiting to /api/
   app.use('/api', apiLimiter);

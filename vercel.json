@@ -3,9 +3,20 @@
   "buildCommand": "npm run build:client",
   "outputDirectory": "client/dist",
   "routes": [
-    { "src": "/api/health", "dest": "/api/health.js" },
-    { "src": "/api/(.*)", "dest": "/api/[...path].js" },
-    { "handle": "filesystem" },
-    { "src": "/(.*)", "dest": "/index.html" }
+    {
+      "src": "/api/health",
+      "dest": "https://quizclash-06yc.onrender.com/health"
+    },
+    {
+      "src": "/api/(.*)",
+      "dest": "https://quizclash-06yc.onrender.com/api/$1"
+    },
+    {
+      "handle": "filesystem"
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/index.html"
+    }
   ]
 }
