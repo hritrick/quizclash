@@ -2,8 +2,9 @@ import { logger } from '../config/logger.js';
 
 export const registerRoomHandlers = (io, socket, gameEngine) => {
   // Join a room lobby or game
-  socket.on('room:join', async ({ code, isSpectator = false } = {}) => {
+  socket.on('room:join', async (payload) => {
     try {
+      const { code, isSpectator = false } = payload || {};
       if (!code) {
         socket.emit('error', { code: 'INVALID_CODE', message: 'Room code is required' });
         return;
@@ -56,8 +57,9 @@ export const registerRoomHandlers = (io, socket, gameEngine) => {
   });
 
   // Join as spectator explicitly
-  socket.on('spectate:join', async ({ code } = {}) => {
+  socket.on('spectate:join', async (payload) => {
     try {
+      const { code } = payload || {};
       if (!code) return;
       const roomCode = code.toUpperCase();
       const user = socket.user;

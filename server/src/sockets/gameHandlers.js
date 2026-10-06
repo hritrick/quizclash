@@ -2,8 +2,9 @@ import { logger } from '../config/logger.js';
 
 export const registerGameHandlers = (io, socket, gameEngine) => {
   // Host triggers game start
-  socket.on('host:start', async ({ code } = {}) => {
+  socket.on('host:start', async (payload) => {
     try {
+      const { code } = payload || {};
       const roomCode = (code || socket.roomCode)?.toUpperCase();
       if (!roomCode) {
         socket.emit('error', { code: 'INVALID_CODE', message: 'Room code missing' });
@@ -39,8 +40,9 @@ export const registerGameHandlers = (io, socket, gameEngine) => {
   });
 
   // Player uses a power-up (fiftyFifty, doublePoints, freeze)
-  socket.on('powerup:use', async ({ type, targetUserId, code } = {}) => {
+  socket.on('powerup:use', async (payload) => {
     try {
+      const { type, targetUserId, code } = payload || {};
       const roomCode = (code || socket.roomCode)?.toUpperCase();
       if (!roomCode) {
         socket.emit('error', { code: 'INVALID_CODE', message: 'Room code missing' });

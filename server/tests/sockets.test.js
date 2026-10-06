@@ -63,6 +63,12 @@ describe('Socket.IO gameplay regressions', () => {
     const host = await signup('SoloHost', 'host');
     const room = await createRoom(host, 'solo');
     const socket = await socketFor(host);
+    const invalidJoin = event(socket, 'error');
+    socket.emit('room:join', null);
+    expect((await invalidJoin).code).toBe('INVALID_CODE');
+    const invalidPowerup = event(socket, 'error');
+    socket.emit('powerup:use', null);
+    expect((await invalidPowerup).code).toBe('INVALID_CODE');
     const question = event(socket, 'game:questionStart');
     await join(socket, room.code);
     expect((await question).question.correctIndex).toBeUndefined();

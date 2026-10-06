@@ -57,7 +57,7 @@ export const createApp = () => {
   app.use(cookieParser(env.COOKIE_SECRET));
 
   // Health Check
-  app.get('/health', (req, res) => {
+  app.get(['/health', '/api/health'], (req, res) => {
     const ready = mongoose.connection.readyState === 1;
     res.status(ready ? 200 : 503).json({
       status: ready ? 'ok' : 'unavailable',
@@ -68,8 +68,6 @@ export const createApp = () => {
       env: env.NODE_ENV,
     });
   });
-
-  app.get('/api/health', (req, res) => res.redirect(307, '/health'));
 
   // Apply general rate limiting to /api/
   app.use('/api', apiLimiter);

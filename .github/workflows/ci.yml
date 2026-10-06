@@ -60,9 +60,26 @@ jobs:
         run: cd client && npm run build
 
   docker-build:
-    name: Docker Build Check
+    name: Docker Full Stack Check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - run: docker build -t quizclash-server ./server
       - run: docker build -t quizclash-client ./client
+
+      - name: Start and verify the Docker stack
+        run: |
+          export JWT_SECRET=$(openssl rand -hex 32)
+          export JWT_REFRESH_SECRET=$(openssl rand -hex 32)
+          export COOKIE_SECRET=$(openssl rand -hex 32)
+          trap 'docker compose down -v' EXIT
+          docker compose up -d --build
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:5173/api/health > /dev/null; then break; fi
+            sleep 1
+          done
+          curl --fail --silent http://127.0.0.1:5173/api/health
+          curl --fail --silent http://127.0.0.1:5173/ > /dev/null
+          curl --fail --silent 'http://127.0.0.1:5173/socket.io/?EIO=4&transport=polling' | head -c 2 | grep '0{'
+          docker compose exec -T server npm run seed
+          npx --yes newman@6 run postman/QuizClash.postman_collection.json -e postman/QuizClash.postman_environment.json --env-var baseUrl=http://127.0.0.1:5173/api/v1
